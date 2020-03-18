@@ -1,9 +1,12 @@
 
 
 var Wall = [];
+var Wall2 = [];
 var Field = [];
+var Field2 = [];
 var canvas = document.querySelector("canvas")
-var Spielphase = "LabyrinthBauen"; 
+var Spielphase = "LabyrinthBauen";
+var SchatzGelegt = "nein"
 
 const zeichneFeld = (x, y, farbe) => {
     let feld = new Path.Rectangle(new Point(x, y), new Size(91, 91))
@@ -24,15 +27,21 @@ const zeichneFeld = (x, y, farbe) => {
     }
     feld.onClick = function (event) {
         if (Spielphase == "SchatzLegen") {
-        if (feld.fillColor.equals("white")) {
-            event.currentTarget.fillColor = "black";
-            event.currentTarget.strokeWidth = 2;
-            feld.schatz = true
-        } else {
-            event.currentTarget.fillColor = "white"
-            event.currentTarget.strokeWidth = 0;
-            feld.schatz = false
-        }
+            if (feld.fillColor.equals("white")) {
+                if(SchatzGelegt == "nein") {
+                    event.currentTarget.fillColor = "black";
+                    event.currentTarget.strokeWidth = 2;
+                    feld.schatz = true
+                    SchatzGelegt = "ja"
+                } else {
+                    alert("Entferne den Schatz, bevor du ihn an anderer Stelle plazierst")
+                }
+            } else {
+                event.currentTarget.fillColor = "white"
+                event.currentTarget.strokeWidth = 0;
+                feld.schatz = false
+                SchatzGelegt = "nein"
+            }
         }
     }
 }
@@ -55,19 +64,19 @@ const zeichneWand = (x, y, hoehe, breite, farbe) => {
     }
     wand.onClick = function (event) {
         if (Spielphase == "LabyrinthBauen") {
-        if (wand.strokeColor.equals("red")) {
-            event.currentTarget.strokeColor = "#eaeaea"
-            event.currentTarget.strokeWidth = 2
-            event.currentTarget.sendToBack()
-            wand.zu = false;
-            console.log(wand.zu)
-        } else {
-            event.currentTarget.strokeColor = "red"
-            event.currentTarget.strokeWidth = 5
-            event.currentTarget.bringToFront()
-            wand.zu = true;
-            console.log(wand.zu)
-        }
+            if (wand.strokeColor.equals("red")) {
+                event.currentTarget.strokeColor = "#eaeaea"
+                event.currentTarget.strokeWidth = 2
+                event.currentTarget.sendToBack()
+                wand.zu = false;
+                console.log(wand.zu)
+            } else {
+                event.currentTarget.strokeColor = "red"
+                event.currentTarget.strokeWidth = 5
+                event.currentTarget.bringToFront()
+                wand.zu = true;
+                console.log(wand.zu)
+            }
         }
     }
     return wand
@@ -95,14 +104,15 @@ start = () => {
         event.currentTarget.fillColor = "white"
     }
     weiter.onClick = function (event) {
+        console.log("clickS")
         if (Spielphase == "LabyrinthBauen") {
             Spielphase = "SchatzLegen"
-        } else if (Spielphase == "SchatzLegen") {
+        } else if (Spielphase == "SchatzLegen" && SchatzGelegt == "ja") {
             Spielphase = "SchatzSuchen"
         }
     }
 
-    var text = new PointText(new Point(994, 95));
+    var text = new PointText(new Point(994, 145));
     text.justification = "center";
     text.fillColor = "black";
     text.content = "WEITER";
