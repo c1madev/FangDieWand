@@ -16,8 +16,16 @@ start = () => {
             Field[i].fillColor = "white";
             Field[i].onMouseEnter = function (event) {canvas.style.cursor = "pointer";}
             Field[i].onMouseLeave = function (event) {canvas.style.cursor = "default";}
+            Field[i].onclick = function (event) {
+                Field[i].strokeColor = "white";
+                Field[i].strokeWidth = 3;
+                Field[i].fillColor = "black";
+            }
+            i++;
         }
     }
+
+    i = 0;
 
     for (var breite = 180; breite < 800; breite = breite + 100) {
         for (var hoehe = 80; hoehe < 800; hoehe = hoehe + 100) {
@@ -39,10 +47,9 @@ start = () => {
                 Wall[i+1].strokeColor = "red";
                 Wall[i+1].insertAbove();
             }
+            i = i+2;
         }
     }
-
-    i=10;
 
     rahmenInnen = new Path.Rectangle(new Point(82, 82), new Size(794,794));
     rahmenInnen.strokeColor = "red";
