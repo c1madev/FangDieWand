@@ -4,6 +4,23 @@ var Wall = [];
 var Field = [];
 var canvas = document.querySelector("canvas")
 
+const zeichneFeld = (x, y, farbe) => {
+    let feld = new Path.Rectangle(new Point(x, y), new Size(91, 91))
+    feld.fillColor = farbe;
+    feld.strokeColor = farbe;
+    feld.strokeWidth = 0;
+    feld.onMouseEnter = function (event) {
+        canvas.style.cursor = "pointer";
+    }
+    feld.onMouseLeave = function (event) {
+        canvas.style.cursor = "default";
+    }
+    feld.onClick = function (event) {
+            event.currentTarget.fillColor = "black";
+            event.currentTarget.strokeWidth = 2;
+    }
+}
+
 const zeichneWand = (x, y, hoehe, breite, farbe) => {
     let wand = new Path.Rectangle(new Point(x, y), new Size(hoehe, breite));
     wand.strokeColor = farbe;
@@ -15,8 +32,8 @@ const zeichneWand = (x, y, hoehe, breite, farbe) => {
         canvas.style.cursor = "default";
     }
     wand.onClick = function (event) {
-        event.currentTarget.strokeColor = "red";
-        this.bringToFront()
+        event.currentTarget.strokeColor = "red"
+        event.currentTarget.bringToFront()
     }
     return wand
 }
@@ -31,23 +48,21 @@ start = () => {
 
     var i = 0;
 
-    for (var breite = 88; breite < 800; breite = breite+100) {
-        for (var hoehe = 88; hoehe < 800; hoehe = hoehe + 100) {
-            Field[i] = new Path.Rectangle(new Point(breite, hoehe), new Size(90, 90));
-            Field[i].fillColor = "white";
-            //Field[i].onMouseEnter = function (event) {canvas.style.cursor = "pointer";}
-            //Field[i].onMouseLeave = function (event) {canvas.style.cursor = "default";}
-            Field[i].onclick = function (event) {
-                Field[i].strokeColor = "white";
-                Field[i].strokeWidth = 3;
-                Field[i].fillColor = "black";
+    for (var x = 0; x < 8; x++) {
+        for (var y = 0; y < 8; y++) {
+            if (y == 0) {
+                Field[x] = [];
             }
-            i++;
+            const punktX = 87+100*x;
+            const punktY = 87+100*y;
+            Field[x][y] = {
+                feld: zeichneFeld(punktX, punktY, "white"),
+            }
         }
     }
 
 
-    for (var x = 0; x < 8; x++) {
+    for (var x = 0; x < 7; x++) {
         for (var y = 0; y < 8; y++) {
             if (y == 0) {
                 Wall[x] = []
