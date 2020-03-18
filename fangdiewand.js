@@ -16,8 +16,13 @@ const zeichneFeld = (x, y, farbe) => {
         canvas.style.cursor = "default";
     }
     feld.onClick = function (event) {
+        if (feld.fillColor.equals("white")) {
             event.currentTarget.fillColor = "black";
             event.currentTarget.strokeWidth = 2;
+        } else {
+            event.currentTarget.fillColor = "white"
+            event.currentTarget.strokeWidth = 0;
+        }
     }
 }
 
@@ -32,8 +37,14 @@ const zeichneWand = (x, y, hoehe, breite, farbe) => {
         canvas.style.cursor = "default";
     }
     wand.onClick = function (event) {
-        event.currentTarget.strokeColor = "red"
-        event.currentTarget.bringToFront()
+        if (wand.strokeColor.equals("red")) {
+            console.log(wand.strokeColor)
+            event.currentTarget.strokeColor = "#eaeaea"
+            event.currentTarget.sendToBack()
+        } else {
+            event.currentTarget.strokeColor = "red"
+            event.currentTarget.bringToFront()
+        }
     }
     return wand
 }
