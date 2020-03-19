@@ -7,6 +7,7 @@ var Field2 = [];
 var canvas = document.querySelector("canvas")
 var Spielphase = "LabyrinthBauen";
 var SchatzGelegt = "nein"
+var Zug = "DuBistDran"
 
 const zeichneFeld = (x, y, farbe) => {
     let feld = new Path.Rectangle(new Point(x, y), new Size(91, 91))
@@ -41,6 +42,38 @@ const zeichneFeld = (x, y, farbe) => {
                 event.currentTarget.strokeWidth = 0;
                 feld.schatz = false
                 SchatzGelegt = "nein"
+            }
+        }
+    }
+}
+
+const zeichneFeld2 = (x, y, farbe) => {
+    let feld = new Path.Rectangle(new Point(x, y), new Size(91, 91))
+    feld.fillColor = farbe;
+    feld.strokeColor = farbe;
+    feld.strokeWidth = 0;
+    console.log(Spielphase)
+    feld.onMouseEnter = function (event) {
+        console.log("Enter")
+        if (Spielphase == "SchatzSuchen" && Zug == "DuBistDran") {
+            canvas.style.cursor = "pointer"
+            feld.fillColor = "#e6f3f7"
+        }
+    }
+    feld.onMouseLeave = function (event) {
+        if (Spielphase == "SchatzSuchen" && Zug == "DuBistDran") {
+            canvas.style.cursor = "default"
+            feld.fillColor = "white"
+        } 
+    }
+    feld.onClick = function (event) {
+        if (Spielphase == "SchatzSuchen" && Zug == "DuBistDran") {
+            if (feld.strokeColor.equals("white")) {
+                event.currentTarget.strokeColor = "black"
+                event.currentTarget.strokeWidth = 5
+            } else {
+                event.currentTarget.strokeColor = "white"
+                event.currentTarget.strokeWidth = 0
             }
         }
     }
@@ -104,11 +137,46 @@ start = () => {
         event.currentTarget.fillColor = "white"
     }
     weiter.onClick = function (event) {
-        console.log("clickS")
         if (Spielphase == "LabyrinthBauen") {
             Spielphase = "SchatzLegen"
         } else if (Spielphase == "SchatzLegen" && SchatzGelegt == "ja") {
             Spielphase = "SchatzSuchen"
+            weiter.remove()
+            text.remove()
+            for (var x = 0; x < 8; x++) {
+                for (var y = 0; y < 8; y++) {
+                    if (y == 0) {
+                        Field2[x] = [];
+                    }
+                    const punktX = 1087+100*x;
+                    const punktY = 87+100*y;
+                    Field2[x][y] = {
+                        feld: zeichneFeld2(punktX, punktY, "white"),
+                    }
+                }
+            }
+        
+        
+            for (var x = 0; x < 7; x++) {
+                for (var y = 0; y < 8; y++) {
+                    if (y == 0) {
+                        Wall2[x] = []
+                    }
+                    const punktX = 180 + 100*x
+                    const punktY = 80 + 100*y
+                    Wall2[x][y] = {
+                        hoch: zeichneWand(punktX+1000, punktY, 5, 100, "#eaeaea"),
+                        quer: zeichneWand(punktY+1000, punktX, 100, 5, "#eaeaea"),
+                    }
+                }
+            }
+            rahmenAussen = new Path.Rectangle(new Point(1064, 64), new Size(830, 830));
+            rahmenAussen.strokeColor = "black";
+            rahmenAussen.strokeWidth = 15;
+
+            rahmenInnen = new Path.Rectangle(new Point(1082, 82), new Size(794,794));
+            rahmenInnen.strokeColor = "red";
+            rahmenInnen.strokeWidth = 10;
         }
     }
 
