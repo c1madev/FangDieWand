@@ -14,7 +14,11 @@ const computerPlays = () => {
     Field[0][0].fillColor = "yellow" // dieses Feld wird durch gelbe Farbe visualisiert
     let Ausgangsfelder = AusgangsfeldFinden(); //mögliche Ausgangsfelder werden gefunden
     AusgangsfeldRandom = Math.floor(Ausgangsfelder.length * Math.random()) //daraus wird random eines Ausgewählt
-    Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom] 
+    Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom]
+    if (Ausgangsfeld.fillColor.equals("yellow") || Ausgangsfeld.fillColor.equals("white") || Ausgangsfeld.fillColor.equals("#cedaic")) {
+        console.log(findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column))
+        Ausgangsfeld.fillColor = "#ciadec"
+    } else Ausgangsfeld.fillColor = "#cccccc"
     let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column); //die Nachbarfelder, die noch nicht bekannt sind, und keine bekannte Wand
     nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
     tryDiscoverField = nextFields[nextFieldRandom]
@@ -39,16 +43,16 @@ const computerPlays = () => {
             alert("Das Spiel ist vorbei.\rDer Computer hat den Schatz gefunden.\rDu hast verloren.")
         } 
     }
-    console.log(nextFields.length) 
-    console.log(Ausgangsfeld.row, Ausgangsfeld.column, tryDiscoverField.row, tryDiscoverField.column)
+    console.log(nextFields.length)
 }
 
 const AusgangsfeldFinden = () => {
     let discoveredFields = [];
     for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
-            if (Field[x][y].discovered && findUndiscoveredNeighbors.length > 0) {
+            if (Field[x][y].discovered && findUndiscoveredNeighbors(x,y).length > 0) {
                 discoveredFields.push(Field[x][y])
+                console.log("Discovered Field = Field" + x + " " + y)
             }
         }
     }
@@ -56,10 +60,10 @@ const AusgangsfeldFinden = () => {
 }
 
 const findUndiscoveredNeighbors = (x, y) => {
-    let neighbors = [[x, y-1, "down"], [x, y+1, "up"], [x-1, y, "left"], [x+1, y, "right"]]
-    let undiscoveredNeighbors = []
-    for (coordinates of neighbors) {
-        let checkX = coordinates[0]
+    let neighbors = [[x, y-1, "down"], [x, y+1, "up"], [x-1, y, "left"], [x+1, y, "right"]] // definiert mögliche Nachbarn
+    let undiscoveredNeighbors = [] // Legt eine Array für alle positiven Dinge an
+    for (coordinates of neighbors) { //Mit allen Wertegruppen aus neighbors wird folgendes gemacht:
+        let checkX = coordinates[0] 
         let checkY = coordinates[1]
         let checkDir = coordinates[2]
         if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) {
