@@ -17,16 +17,84 @@ const computerPlays = () => {
         AusgangsfeldRandom = Math.floor(Ausgangsfelder.length * Math.random())
         Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom]
         let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column);
-        console.log(nextFields)
         nextFieldRandom = Math.floor(nextFields.length * Math.random())
         tryDiscoverField = nextFields[nextFieldRandom]
-        tryDiscoverField.discovered = true
-        tryDiscoverField.fillColor = "yellow"
-        if (tryDiscoverField.treasure == true) {
-            alert("Der Computer hat den Schatz gefunden.\r Du hast verloren")
-            tryDiscoverField.fillCOlor = "orange"
+        console.log(nextFields.length)
+        console.log(Ausgangsfeld.row, Ausgangsfeld.column, tryDiscoverField.row, tryDiscoverField.column)
+        let checkX = Ausgangsfeld.row
+        let checkY = Ausgangsfeld.column
+        //if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) {
+            if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(checkX,checkY,"quer")) {
+                Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.discovered = true
+                Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.strokeColor = "blue"
+                console.log("hohe Wand, zu")
+                turn = "playersTurn"
+                break
+            } else if (Ausgangsfeld.row < tryDiscoverField && isZuWall(checkX+1,checkY, "quer")) {
+                Wall[Ausgangsfeld.row+1][Ausgangsfeld.column].hoch.discovered = true
+                Wall[Ausgangsfeld.row+1][Ausgangsfeld.column].hoch.strokeColor = "blue"
+                console.log("hohe Wand, zu")
+                turn = "playersTurn"
+                break
+            } else if (Ausgangsfeld.column > tryDiscoverField.column && isZuWall(checkX,checkY, "hoch")) {
+                Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
+                Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
+                console.log("hohe Wand, zu")
+                turn = "playersTurn"
+                break
+            } else if (Ausgangsfeld.column < tryDiscoverField.column && isZuWall(checkX,checkY+1, "hoch")) {
+                Wall[Ausgangsfeld.row][Ausgangsfeld.column+1].hoch.discovered = true
+                Wall[Ausgangsfeld.row][Ausgangsfeld.column+1].hoch.strokeColor = "blue"
+                console.log("hohe Wand, zu")
+                turn = "playersTurn"
+                break
+            } else {
+                tryDiscoverField.discovered = true
+                tryDiscoverField.fillColor = "yellow"
+                turn = "playersTurn"
+                break
+            }
+        /*} else {
             break
         }
+        /*if (Ausgangsfeld.row == tryDiscoverField.row && !isZuWall()) {
+            tryDiscoverField.discovered = true
+            tryDiscoverField.fillColor = "yellow"
+            console.log("hohe Wand, nicht zu")
+            if (tryDiscoverField.treasure == true) {
+                alert("Der Computer hat den Schatz gefunden.\rDu hast verloren")
+                tryDiscoverField.fillColor = "orange"
+                break
+            //turn = "playersTurn"
+            //wand.strokeColor = "blue"
+            //break
+            }
+            turn = "playersTurn"
+            break
+        } else if (!Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.zu) {
+            tryDiscoverField.discovered = true
+            tryDiscoverField.fillColor = "yellow"
+            console.log("quere Wand, nicht zu")
+            if (tryDiscoverField.treasure == true) {
+                alert("Der Computer hat den Schatz gefunden.\rDu hast verloren")
+                tryDiscoverField.fillColor = "orange"
+                break
+            }
+            turn = "playersTurn"
+            break
+        } else if (Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.zu) {
+            Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
+            Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
+            console.log("hohe Wand, zu")
+            turn = "playersTurn"
+            break
+        } else if (Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.zu) {
+            Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.discovered = true
+            Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.strokeColor = "blue"
+            console.log("quere Wand, zu")
+            turn = "playersTurn"
+            break
+        }*/
     }
 }
 
@@ -34,7 +102,7 @@ const AusgangsfeldFinden = () => {
     let discoveredFields = [];
     for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
-            if (Field[x][y].discovered && hasUndiscoveredNeighbors(x, y)) {
+            if (Field[x][y].discovered && findUndiscoveredNeighbors.length > 0) {
                 discoveredFields.push(Field[x][y])
             }
         }
@@ -42,31 +110,35 @@ const AusgangsfeldFinden = () => {
     return discoveredFields;
 }
 
-const hasUndiscoveredNeighbors = (x, y) => {
-    let neighbors = [[x, y-1], [x, y+1], [x-1, y], [x+1, y]]
-    for (coordinates of neighbors) {
-        let checkX = coordinates[0]
-        let checkY = coordinates[1]
-        if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) {
-            return true
-        }
-    }
-}
-
 const findUndiscoveredNeighbors = (x, y) => {
-    let neighbors = [[x, y-1], [x, y+1], [x-1, y], [x+1, y]]
+    let neighbors = [[x, y-1, "down"], [x, y+1, "up"], [x-1, y, "left"], [x+1, y, "right"]]
     let undiscoveredNeighbors = []
     for (coordinates of neighbors) {
         let checkX = coordinates[0]
         let checkY = coordinates[1]
+        let checkDir = coordinates[2]
         if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) {
-            undiscoveredNeighbors.push(Field[checkX][checkY])
+            if (checkDir == "up" && isUndiscoveredWall(x,y,"quer")) {
+                undiscoveredNeighbors.push(Field[checkX][checkY])
+            } else if (checkDir == "down" && isUndiscoveredWall(x,y+1, "quer")) {
+                undiscoveredNeighbors.push(Field[checkX][checkY])
+            } else if (checkDir == "left" && isUndiscoveredWall(x,y, "hoch")) {
+                undiscoveredNeighbors.push(Field[checkX][checkY])
+            } else if (checkDir == "right" && isUndiscoveredWall(x+1,y, "hoch")) {
+                undiscoveredNeighbors.push(Field[checkX][checkY])
+            }
         }
     }
     return undiscoveredNeighbors
 }
 
+const isUndiscoveredWall = (x, y, direction) => {
+    return (Wall[x] && Wall[x][y] && !Wall[x][y][direction]?.discovered) 
+}
 
+const isZuWall = (x,y,direction) => {
+    return (Wall[x] && Wall[x][y] && Wall[x][y][direction]?.zu)
+}
 
 const zeichneFeld = (x, y, farbe) => {
     let feld = new Path.Rectangle(new Point(x, y), new Size(91, 91))
@@ -116,19 +188,19 @@ const zeichneFeld2 = (x, y, farbe) => {
     feld.strokeWidth = 0;
     feld.discovered = false;
     feld.onMouseEnter = function (event) {
-        if (gameStage == "huntTreasure" && turn == "yourTurn") {
+        if (gameStage == "huntTreasure" && turn == "playersTurn") {
             canvas.style.cursor = "pointer"
             feld.fillColor = "#e6f3f7"
         }
     }
     feld.onMouseLeave = function (event) {
-        if (gameStage == "huntTreasure" && turn == "yourTurn") {
+        if (gameStage == "huntTreasure" && turn == "playersTurn") {
             canvas.style.cursor = "default"
             feld.fillColor = "white"
         } 
     }
     feld.onClick = function (event) {
-        if (gameStage == "huntTreasure" && turn == "yourTurn") {
+        if (gameStage == "huntTreasure" && turn == "playersTurn") {
             if (feld.strokeColor.equals("white")) {
                 event.currentTarget.strokeColor = "black"
                 event.currentTarget.strokeWidth = 5
@@ -137,6 +209,8 @@ const zeichneFeld2 = (x, y, farbe) => {
                 event.currentTarget.strokeWidth = 0
             }
         }
+        turn = "computersTurn"
+        computerPlays()
     }
     return feld;
 }
@@ -269,16 +343,16 @@ start = () => {
     }
 
 
-    for (var x = 0; x < 7; x++) {
+    for (var x = 0; x < 8; x++) {
         for (var y = 0; y < 8; y++) {
             if (y == 0) {
                 Wall[x] = []
             }
-            const punktX = 180 + 100*x
+            const punktX = 80 + 100*x
             const punktY = 80 + 100*y
             Wall[x][y] = {
                 hoch: zeichneWand(punktX, punktY, 5, 100, "#eaeaea"),
-                quer: zeichneWand(punktY, punktX, 100, 5, "#eaeaea"),
+                quer: zeichneWand(punktX, punktY, 100, 5, "#eaeaea"),
             }
         }
     }
