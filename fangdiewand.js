@@ -1,23 +1,84 @@
 
 
-var Wall = [];
-var Wall2 = [];
-var Field = [];
-var Field2 = [];
-var canvas = document.querySelector("canvas")
-var Spielphase = "LabyrinthBauen";
-var SchatzGelegt = "nein"
-var Zug = "DuBistDran"
+let Wall = [];
+let Wall2 = [];
+let Field = [];
+let Field2 = [];
+let canvas = document.querySelector("canvas")
+let gameStage = "buildLabyrinth";
+let treasureBuried = false
+let turn = "computersTurn"
+
+const computerPlays = () => {
+    while (turn = "computersTurn") {
+        Field[0][0].discovered = true
+        Field[0][0].fillColor = "yellow"
+        let Ausgangsfelder = AusgangsfeldFinden();
+        AusgangsfeldRandom = Math.floor(Ausgangsfelder.length * Math.random())
+        Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom]
+        let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column);
+        console.log(nextFields)
+        nextFieldRandom = Math.floor(nextFields.length * Math.random())
+        tryDiscoverField = nextFields[nextFieldRandom]
+        tryDiscoverField.discovered = true
+        tryDiscoverField.fillColor = "yellow"
+        if (tryDiscoverField.treasure == true) {
+            alert("Der Computer hat den Schatz gefunden.\r Du hast verloren")
+            tryDiscoverField.fillCOlor = "orange"
+            break
+        }
+    }
+}
+
+const AusgangsfeldFinden = () => {
+    let discoveredFields = [];
+    for (let x = 0; x < 8; x++) {
+        for (let y = 0; y < 8; y++) {
+            if (Field[x][y].discovered && hasUndiscoveredNeighbors(x, y)) {
+                discoveredFields.push(Field[x][y])
+            }
+        }
+    }
+    return discoveredFields;
+}
+
+const hasUndiscoveredNeighbors = (x, y) => {
+    let neighbors = [[x, y-1], [x, y+1], [x-1, y], [x+1, y]]
+    for (coordinates of neighbors) {
+        let checkX = coordinates[0]
+        let checkY = coordinates[1]
+        if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) {
+            return true
+        }
+    }
+}
+
+const findUndiscoveredNeighbors = (x, y) => {
+    let neighbors = [[x, y-1], [x, y+1], [x-1, y], [x+1, y]]
+    let undiscoveredNeighbors = []
+    for (coordinates of neighbors) {
+        let checkX = coordinates[0]
+        let checkY = coordinates[1]
+        if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) {
+            undiscoveredNeighbors.push(Field[checkX][checkY])
+        }
+    }
+    return undiscoveredNeighbors
+}
+
+
 
 const zeichneFeld = (x, y, farbe) => {
     let feld = new Path.Rectangle(new Point(x, y), new Size(91, 91))
     feld.fillColor = farbe;
     feld.strokeColor = farbe;
     feld.strokeWidth = 0;
+    feld.discovered = false;
+    feld.treasure = false
     feld.onMouseEnter = function (event) {
-        if (Spielphase == "SchatzLegen") {
+        if (gameStage == "buryTreasure") {
         canvas.style.cursor = "pointer";
-        feld.strokeColor = "green"
+        this.strokeColor = "green"
         feld.strokeWidth = 5
     }
     }
@@ -27,24 +88,25 @@ const zeichneFeld = (x, y, farbe) => {
         feld.strokeWidth = 0
     }
     feld.onClick = function (event) {
-        if (Spielphase == "SchatzLegen") {
+        if (gameStage == "buryTreasure") {
             if (feld.fillColor.equals("white")) {
-                if(SchatzGelegt == "nein") {
+                if(treasureBuried == false) {
                     event.currentTarget.fillColor = "black";
                     event.currentTarget.strokeWidth = 2;
-                    feld.schatz = true
-                    SchatzGelegt = "ja"
+                    feld.treasure = true
+                    treasureBuried = true
                 } else {
                     alert("Entferne den Schatz, bevor du ihn an anderer Stelle plazierst")
                 }
             } else {
                 event.currentTarget.fillColor = "white"
                 event.currentTarget.strokeWidth = 0;
-                feld.schatz = false
-                SchatzGelegt = "nein"
+                feld.treasure = false
+                treasureBuried = false
             }
         }
     }
+    return feld;
 }
 
 const zeichneFeld2 = (x, y, farbe) => {
@@ -52,22 +114,21 @@ const zeichneFeld2 = (x, y, farbe) => {
     feld.fillColor = farbe;
     feld.strokeColor = farbe;
     feld.strokeWidth = 0;
-    console.log(Spielphase)
+    feld.discovered = false;
     feld.onMouseEnter = function (event) {
-        console.log("Enter")
-        if (Spielphase == "SchatzSuchen" && Zug == "DuBistDran") {
+        if (gameStage == "huntTreasure" && turn == "yourTurn") {
             canvas.style.cursor = "pointer"
             feld.fillColor = "#e6f3f7"
         }
     }
     feld.onMouseLeave = function (event) {
-        if (Spielphase == "SchatzSuchen" && Zug == "DuBistDran") {
+        if (gameStage == "huntTreasure" && turn == "yourTurn") {
             canvas.style.cursor = "default"
             feld.fillColor = "white"
         } 
     }
     feld.onClick = function (event) {
-        if (Spielphase == "SchatzSuchen" && Zug == "DuBistDran") {
+        if (gameStage == "huntTreasure" && turn == "yourTurn") {
             if (feld.strokeColor.equals("white")) {
                 event.currentTarget.strokeColor = "black"
                 event.currentTarget.strokeWidth = 5
@@ -77,6 +138,7 @@ const zeichneFeld2 = (x, y, farbe) => {
             }
         }
     }
+    return feld;
 }
 
 const zeichneWand = (x, y, hoehe, breite, farbe) => {
@@ -86,7 +148,7 @@ const zeichneWand = (x, y, hoehe, breite, farbe) => {
     wand.fillColor = farbe;
     wand.zu = false
     wand.onMouseEnter = function (event) {
-        if (Spielphase == "LabyrinthBauen") {
+        if (gameStage == "buildLabyrinth") {
         canvas.style.cursor = "pointer";
         wand.fillColor = "green"
         }
@@ -96,19 +158,17 @@ const zeichneWand = (x, y, hoehe, breite, farbe) => {
         wand.fillColor = "#eaeaea"
     }
     wand.onClick = function (event) {
-        if (Spielphase == "LabyrinthBauen") {
+        if (gameStage == "buildLabyrinth") {
             if (wand.strokeColor.equals("red")) {
                 event.currentTarget.strokeColor = "#eaeaea"
                 event.currentTarget.strokeWidth = 2
-                event.currentTarget.sendToBack()
+                this.sendToBack()
                 wand.zu = false;
-                console.log(wand.zu)
             } else {
                 event.currentTarget.strokeColor = "red"
                 event.currentTarget.strokeWidth = 5
-                event.currentTarget.bringToFront()
+                this.bringToFront()
                 wand.zu = true;
-                console.log(wand.zu)
             }
         }
     }
@@ -137,10 +197,10 @@ start = () => {
         event.currentTarget.fillColor = "white"
     }
     weiter.onClick = function (event) {
-        if (Spielphase == "LabyrinthBauen") {
-            Spielphase = "SchatzLegen"
-        } else if (Spielphase == "SchatzLegen" && SchatzGelegt == "ja") {
-            Spielphase = "SchatzSuchen"
+        if (gameStage == "buildLabyrinth") {
+            gameStage = "buryTreasure"
+        } else if (gameStage == "buryTreasure" && treasureBuried == true) {
+            gameStage = "huntTreasure"
             weiter.remove()
             text.remove()
             for (var x = 0; x < 8; x++) {
@@ -148,11 +208,13 @@ start = () => {
                     if (y == 0) {
                         Field2[x] = [];
                     }
-                    const punktX = 1087+100*x;
+                    const punktX = 987+100*x;
                     const punktY = 87+100*y;
                     Field2[x][y] = {
                         feld: zeichneFeld2(punktX, punktY, "white"),
                     }
+                    Field2[x][y].row = x
+                    Field2[x][y].column = y
                 }
             }
         
@@ -165,18 +227,20 @@ start = () => {
                     const punktX = 180 + 100*x
                     const punktY = 80 + 100*y
                     Wall2[x][y] = {
-                        hoch: zeichneWand(punktX+1000, punktY, 5, 100, "#eaeaea"),
-                        quer: zeichneWand(punktY+1000, punktX, 100, 5, "#eaeaea"),
+                        hoch: zeichneWand(punktX+900, punktY, 5, 100, "#eaeaea"),
+                        quer: zeichneWand(punktY+900, punktX, 100, 5, "#eaeaea"),
                     }
                 }
             }
-            rahmenAussen = new Path.Rectangle(new Point(1064, 64), new Size(830, 830));
+
+            rahmenAussen = new Path.Rectangle(new Point(964, 64), new Size(830, 830));
             rahmenAussen.strokeColor = "black";
             rahmenAussen.strokeWidth = 15;
 
-            rahmenInnen = new Path.Rectangle(new Point(1082, 82), new Size(794,794));
-            rahmenInnen.strokeColor = "red";
+            rahmenInnen = new Path.Rectangle(new Point(982, 82), new Size(794,794));
+            rahmenInnen.strokeColor = "blue";
             rahmenInnen.strokeWidth = 10;
+            computerPlays();
         }
     }
 
@@ -198,9 +262,9 @@ start = () => {
             }
             const punktX = 87+100*x;
             const punktY = 87+100*y;
-            Field[x][y] = {
-                feld: zeichneFeld(punktX, punktY, "white"),
-            }
+            Field[x][y] = zeichneFeld(punktX, punktY, "white")
+            Field[x][y].row = x
+            Field[x][y].column = y
         }
     }
 
