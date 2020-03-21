@@ -10,92 +10,37 @@ let treasureBuried = false
 let turn = "computersTurn"
 
 const computerPlays = () => {
-    while (turn = "computersTurn") {
-        Field[0][0].discovered = true
-        Field[0][0].fillColor = "yellow"
-        let Ausgangsfelder = AusgangsfeldFinden();
-        AusgangsfeldRandom = Math.floor(Ausgangsfelder.length * Math.random())
-        Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom]
-        let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column);
-        nextFieldRandom = Math.floor(nextFields.length * Math.random())
-        tryDiscoverField = nextFields[nextFieldRandom]
-        console.log(nextFields.length)
-        console.log(Ausgangsfeld.row, Ausgangsfeld.column, tryDiscoverField.row, tryDiscoverField.column)
-        let checkX = Ausgangsfeld.row
-        let checkY = Ausgangsfeld.column
-        //if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) {
-            if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(checkX,checkY,"quer")) {
-                Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.discovered = true
-                Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.strokeColor = "blue"
-                console.log("hohe Wand, zu")
-                turn = "playersTurn"
-                break
-            } else if (Ausgangsfeld.row < tryDiscoverField && isZuWall(checkX+1,checkY, "quer")) {
-                Wall[Ausgangsfeld.row+1][Ausgangsfeld.column].hoch.discovered = true
-                Wall[Ausgangsfeld.row+1][Ausgangsfeld.column].hoch.strokeColor = "blue"
-                console.log("hohe Wand, zu")
-                turn = "playersTurn"
-                break
-            } else if (Ausgangsfeld.column > tryDiscoverField.column && isZuWall(checkX,checkY, "hoch")) {
-                Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
-                Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
-                console.log("hohe Wand, zu")
-                turn = "playersTurn"
-                break
-            } else if (Ausgangsfeld.column < tryDiscoverField.column && isZuWall(checkX,checkY+1, "hoch")) {
-                Wall[Ausgangsfeld.row][Ausgangsfeld.column+1].hoch.discovered = true
-                Wall[Ausgangsfeld.row][Ausgangsfeld.column+1].hoch.strokeColor = "blue"
-                console.log("hohe Wand, zu")
-                turn = "playersTurn"
-                break
-            } else {
-                tryDiscoverField.discovered = true
-                tryDiscoverField.fillColor = "yellow"
-                turn = "playersTurn"
-                break
-            }
-        /*} else {
-            break
-        }
-        /*if (Ausgangsfeld.row == tryDiscoverField.row && !isZuWall()) {
-            tryDiscoverField.discovered = true
-            tryDiscoverField.fillColor = "yellow"
-            console.log("hohe Wand, nicht zu")
-            if (tryDiscoverField.treasure == true) {
-                alert("Der Computer hat den Schatz gefunden.\rDu hast verloren")
-                tryDiscoverField.fillColor = "orange"
-                break
-            //turn = "playersTurn"
-            //wand.strokeColor = "blue"
-            //break
-            }
-            turn = "playersTurn"
-            break
-        } else if (!Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.zu) {
-            tryDiscoverField.discovered = true
-            tryDiscoverField.fillColor = "yellow"
-            console.log("quere Wand, nicht zu")
-            if (tryDiscoverField.treasure == true) {
-                alert("Der Computer hat den Schatz gefunden.\rDu hast verloren")
-                tryDiscoverField.fillColor = "orange"
-                break
-            }
-            turn = "playersTurn"
-            break
-        } else if (Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.zu) {
-            Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
-            Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
-            console.log("hohe Wand, zu")
-            turn = "playersTurn"
-            break
-        } else if (Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.zu) {
-            Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.discovered = true
-            Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.strokeColor = "blue"
-            console.log("quere Wand, zu")
-            turn = "playersTurn"
-            break
-        }*/
+    Field[0][0].discovered = true // ein Feld wird als bekannt markiert (0/0)
+    Field[0][0].fillColor = "yellow" // dieses Feld wird durch gelbe Farbe visualisiert
+    let Ausgangsfelder = AusgangsfeldFinden(); //mögliche Ausgangsfelder werden gefunden
+    AusgangsfeldRandom = Math.floor(Ausgangsfelder.length * Math.random()) //daraus wird random eines Ausgewählt
+    Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom] 
+    let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column); //die Nachbarfelder, die noch nicht bekannt sind, und keine bekannte Wand
+    nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
+    tryDiscoverField = nextFields[nextFieldRandom]
+    if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch")) {
+        Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
+        Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
+        turn = "playersTurn"
+    } else if (Ausgangsfeld.row < tryDiscoverField.row && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "hoch")) {
+        Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.discovered = true
+        Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "blue"
+    } else if (Ausgangsfeld.column > tryDiscoverField.column && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "quer")) {
+        Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.discovered = true
+        Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.strokeColor = "blue"
+    } else if (Ausgangsfeld.column < tryDiscoverField.column && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "quer")) {
+        Wall[tryDiscoverField.row][tryDiscoverField.column].quer.discovered = true
+        Wall[tryDiscoverField.row][tryDiscoverField.column].quer.strokeColor = "blue"
+    } else {
+        tryDiscoverField.fillColor = "yellow"
+        tryDiscoverField.discovered = true
+        if (tryDiscoverField.treasure == true) {
+            tryDiscoverField.fillColor = "orange"
+            alert("Das Spiel ist vorbei.\rDer Computer hat den Schatz gefunden.\rDu hast verloren.")
+        } 
     }
+    console.log(nextFields.length) 
+    console.log(Ausgangsfeld.row, Ausgangsfeld.column, tryDiscoverField.row, tryDiscoverField.column)
 }
 
 const AusgangsfeldFinden = () => {
