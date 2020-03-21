@@ -15,13 +15,14 @@ const computerPlays = () => {
     let Ausgangsfelder = AusgangsfeldFinden(); //mögliche Ausgangsfelder werden gefunden
     AusgangsfeldRandom = Math.floor(Ausgangsfelder.length * Math.random()) //daraus wird random eines Ausgewählt
     Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom]
-    if (Ausgangsfeld.fillColor.equals("yellow") || Ausgangsfeld.fillColor.equals("white") || Ausgangsfeld.fillColor.equals("#cedaic")) {
+    if (Ausgangsfeld.fillColor.equals("yellow") || Ausgangsfeld.fillColor.equals("white") || Ausgangsfeld.fillColor.equals("#cccccc")) {
         console.log(findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column))
         Ausgangsfeld.fillColor = "#ciadec"
     } else Ausgangsfeld.fillColor = "#cccccc"
     let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column); //die Nachbarfelder, die noch nicht bekannt sind, und keine bekannte Wand
     nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
     tryDiscoverField = nextFields[nextFieldRandom]
+    console.log("von " + Ausgangsfeld.row + "," + Ausgangsfeld.column + " auf " + tryDiscoverField.row + "," + tryDiscoverField.column)
     if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch")) {
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
