@@ -62,11 +62,36 @@ const computerPlays = () => {
             if (tryDiscoverField.treasure == true) {
                 tryDiscoverField.fillColor = "orange"
                 alert("Das Spiel ist vorbei.\rDer Computer hat den Schatz gefunden.\rDu hast verloren.\rUm nocheinmal zu spielen, lade die Seite neu.")
+                showLabyrinth()
                 gameStage = "finished"
                 break
             } 
         }
     }
+}
+const showLabyrinth = () => {
+    for (let i = 0; i < Wall2.length; i++) {
+        for (let y = 0; y < Wall2[i].length; y++) {
+            console.log(i,y)
+            if (Wall2[i][y].hoch.zu) {
+                Wall2[i][y].hoch.strokeColor = "blue"
+                Wall2[i][y].hoch.strokeWidth = 5
+            }
+            if (Wall2[i][y].quer.zu) {
+                Wall2[i][y].quer.strokeColor = "blue"
+                Wall2[i][y].quer.strokeWidth = 5
+            }
+        } 
+    }
+    for (let i = 0; i < Field2.length; i++) {
+        for (let y = 0; y < Field2[i].length; y++) {
+            if (Field2[i][y].treasure) {
+                Field2[i][y].fillColor = "red"
+                break
+            }
+        }
+    }
+    rahmenInnen2.bringToFront()
 }
 
 const computerBuildsLabyrinth = () => {
@@ -82,7 +107,7 @@ const computerBuildsLabyrinth = () => {
 
 const setWalls = () => {
     directions = ["hoch","quer"]
-    for(let i = 0; i < 100; i++) {
+    for(let i = 0; i < 200; i++) {
         let randXWall = Math.floor(Math.random() * Wall2.length)
         let randYWall = Math.floor(Math.random() * Wall2.length)
         let randDir = directions[Math.floor(Math.random() * directions.length)]
@@ -300,6 +325,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                         if (tryDiscoverField.treasure == true) {
                             gameStage = "finish"
                             alert("Du hast den Schatz gefunden.\rLade die Seite neu, um noch einmal zu spielen.")
+                            showLabyrinth()
                         }
                     }
                     markAccessibleFields(startingField)
@@ -421,13 +447,13 @@ start = () => {
 
             computerBuildsLabyrinth();
 
-            rahmenAussen = new Path.Rectangle(new Point(964, 64), new Size(830, 830));
-            rahmenAussen.strokeColor = "black";
-            rahmenAussen.strokeWidth = 15;
+            rahmenAussen2 = new Path.Rectangle(new Point(964, 64), new Size(830, 830));
+            rahmenAussen2.strokeColor = "black";
+            rahmenAussen2.strokeWidth = 15;
 
-            rahmenInnen = new Path.Rectangle(new Point(982, 82), new Size(794,794));
-            rahmenInnen.strokeColor = "blue";
-            rahmenInnen.strokeWidth = 10;
+            rahmenInnen2 = new Path.Rectangle(new Point(982, 82), new Size(794,794));
+            rahmenInnen2.strokeColor = "blue";
+            rahmenInnen2.strokeWidth = 10;
 
             Field2[0][0].discovered = true
             Field2[0][0].fillColor = "yellow"
