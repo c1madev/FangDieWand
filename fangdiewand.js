@@ -68,16 +68,19 @@ const computerPlays = () => {
         }
     }
 }
+
 const showLabyrinth = () => {
     for (let i = 0; i < Wall2.length; i++) {
         for (let y = 0; y < Wall2[i].length; y++) {
-            if (Wall2[i][y].hoch.zu) {
+            if (Wall2[i][y].hoch.zu && !Wall2[i][y].hoch.discovered) {
                 Wall2[i][y].hoch.strokeColor = "blue"
                 Wall2[i][y].hoch.strokeWidth = 5
+                Wall2[i][y].hoch.bringToFront()
             }
-            if (Wall2[i][y].quer.zu) {
+            if (Wall2[i][y].quer.zu && !Wall2[i][y].quer.discovered) {
                 Wall2[i][y].quer.strokeColor = "blue"
                 Wall2[i][y].quer.strokeWidth = 5
+                Wall2[i][y].quer.bringToFront()
             }
         } 
     }
@@ -305,6 +308,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                     if (startingField.row > tryDiscoverField.row && isZuWall(startingField.row, startingField.column, "hoch", Wall2)) {
                         turn = "computersTurn"
                         Wall2[startingField.row][startingField.column].hoch.strokeColor = "red"
+                        Wall2[startingField.row][startingField.column].hoch.bringToFront()
                         Wall2[startingField.row][startingField.column].hoch.strokeWidth = 5
                         Wall2[startingField.row][startingField.column].hoch.discovered = true
                         tryDiscoverField.fillColor = "#e6f3f7"
@@ -315,6 +319,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                     } else if (startingField.row < tryDiscoverField.row && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "hoch", Wall2)) {
                         turn = "computersTurn"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "red"
+                        Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.bringToFront()
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeWidth = 5
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.discovered = true
                         tryDiscoverField.fillColor = "#e6f3f7"
@@ -325,6 +330,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                     } else if (startingField.column > tryDiscoverField.column && isZuWall(startingField.row, startingField.column, "quer", Wall2)) {
                         turn = "computersTurn"
                         Wall2[startingField.row][startingField.column].quer.strokeColor = "red"
+                        Wall2[startingField.row][startingField.column].quer.bringToFront()
                         Wall2[startingField.row][startingField.column].quer.strokeWidth = 5
                         Wall2[startingField.row][startingField.column].quer.discovered = true
                         tryDiscoverField.fillColor = "#e6f3f7"
@@ -335,6 +341,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                     } else if (startingField.column < tryDiscoverField.column && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "quer", Wall2)) {
                         turn = "computersTurn"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.strokeColor = "red"
+                        Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.bringToFront()
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.strokeWidth = 5
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.discovered = true
                         tryDiscoverField.fillColor = "#e6f3f7"
