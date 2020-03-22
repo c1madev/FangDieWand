@@ -8,6 +8,10 @@ let canvas = document.querySelector("canvas")
 let gameStage = "buildLabyrinth";
 let treasureBuried = false
 let turn = "computersTurn"
+let markedFields = 0
+let accessibleFields
+let startingField
+let tryDiscoverField
 
 const computerPlays = () => {
     Field[0][0].discovered = true // ein Feld wird als bekannt markiert (0/0)
@@ -28,6 +32,7 @@ const computerPlays = () => {
         return;
     }
     let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column, Field); //die Nachbarfelder, die noch nicht bekannt sind, und keine bekannte Wand
+    console.log(Ausgangsfeld.row, Ausgangsfeld.column)
     nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
     tryDiscoverField = nextFields[nextFieldRandom]
     if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch", Wall)) {
@@ -51,12 +56,16 @@ const computerPlays = () => {
             gameStage = "finished"
         } 
     }
+    turn = "playersTurn"
 }
 
 const computerBuildsLabyrinth = () => {
+    let randXField = 0
+    let randYField = 0
+    while (randXField == 0 && randYField == 0) {
     randXField = Math.floor(Math.random()*Field2.length)
     randYField = Math.floor(Math.random()*Field2.length)
-    console.log(randXField, randYField)
+    }
     Field2[randXField][randYField].treasure = true
     Field2[randXField][randYField].fillColor = "black"
     setWalls()
@@ -65,14 +74,25 @@ const computerBuildsLabyrinth = () => {
 const setWalls = () => {
     directions = ["hoch","quer"]
     for(let i = 0; i < 100; i++) {
-        randXWall = Math.floor(Math.random() * Wall2.length)
-        randYWall = Math.floor(Math.random() * Wall2.length)
-        randDir = directions[Math.floor(Math.random() * directions.length)]
+        let randXWall = Math.floor(Math.random() * Wall2.length)
+        let randYWall = Math.floor(Math.random() * Wall2.length)
+        let randDir = directions[Math.floor(Math.random() * directions.length)]
         Wall2[randXWall][randYWall][randDir].zu = true
         if(allFieldsReachable(Field2)) {
         Wall2[randXWall][randYWall][randDir].strokeColor = "blue"
         Wall2[randXWall][randYWall][randDir].strokeWidth = 5
         } else Wall2[randXWall][randYWall][randDir].zu = false
+    }
+}
+
+const markAccessibleFields = (field) => {
+    accessibleFields = findUndiscoveredNeighbors(field.row, field.column, Field2)
+    for(let i = 0; i < accessibleFields.length; i++) {
+        if (accessibleFields[i].fillColor.equals("#ccffcc")) {
+            accessibleFields[i].fillColor = "white"
+        } else {
+            accessibleFields[i].fillColor = "#ccffcc"
+        }
     }
 }
 
@@ -158,6 +178,8 @@ const zeichneFeld = (x, y, farbe) => {
     feld.strokeWidth = 0;
     feld.discovered = false;
     feld.treasure = false
+    feld.row = (x-87)/100
+    feld.column = (y-87)/100
     feld.onMouseEnter = function (event) {
         if (gameStage == "buryTreasure") {
         canvas.style.cursor = "pointer";
@@ -198,30 +220,97 @@ const zeichneFeld2 = (x, y, farbe) => {
     feld.strokeColor = farbe;
     feld.strokeWidth = 0;
     feld.discovered = false;
+    feld.row = (x-87)/100
+    feld.column = (y-987)/100
     feld.onMouseEnter = function (event) {
         if (gameStage == "huntTreasure" && turn == "playersTurn") {
             canvas.style.cursor = "pointer"
-            feld.fillColor = "#e6f3f7"
+            if (feld.fillColor.equals("#ccffcc")) feld.fillColor = "#e5ffe5"
+            else if (feld.fillColor.equals("yellow"))feld.fillColor = "orange"
+            else feld.fillColor = "#e6f3f7"
         }
     }
     feld.onMouseLeave = function (event) {
         if (gameStage == "huntTreasure" && turn == "playersTurn") {
             canvas.style.cursor = "default"
-            feld.fillColor = "white"
+            if(feld.fillColor.equals("#e5ffe5")) feld.fillColor = "#ccffcc"
+            else if (feld.fillColor.equals("orange"))feld.fillColor = "yellow"
+            else feld.fillColor = "white"
         } 
     }
     feld.onClick = function (event) {
         if (gameStage == "huntTreasure" && turn == "playersTurn") {
-            if (feld.strokeColor.equals("white")) {
-                event.currentTarget.strokeColor = "black"
-                event.currentTarget.strokeWidth = 5
+            if (markedFields == 0 && feld.strokeColor.equals("white")) {
+                if (feld.discovered && findUndiscoveredNeighbors(feld.row, feld.column, Field2).length > 0) {
+                    event.currentTarget.strokeColor = "black"
+                    event.currentTarget.strokeWidth = 5
+                    accessibleFields = findUndiscoveredNeighbors(feld.row, feld.column, Field2)
+                    startingField = this
+                    markAccessibleFields(this);
+                    markedFields = 1
+                }
+            } else if (markedFields == 1 && feld.strokeColor.equals("white")) {
+                if (this == accessibleFields[0] || this == accessibleFields[1] || this == accessibleFields[2]) {
+                    tryDiscoverField = this
+                    if (startingField.row > tryDiscoverField.row && isZuWall(startingField.row, startingField.column, "hoch", Wall2)) {
+                        turn = "computersTurn"
+                        Wall2[startingField.row][startingField.column].hoch.strokeColor = "red"
+                        markedFields = 0
+                        startingField.strokeColor = "white"
+                        startingField.strokeWidth = 0
+                        computerPlays()
+                    } else if (startingField.row < tryDiscoverField.row && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "hoch", Wall2)) {
+                        turn = "computersTurn"
+                        Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "red"
+                        markedFields = 0
+                        startingField.strokeColor = "white"
+                        startingField.strokeWidth = 0
+                        computerPlays()
+                    } else if (startingField.column > tryDiscoverField.column && isZuWall(startingField.row, startingField.column, "quer", Wall2)) {
+                        turn = "computersTurn"
+                        Wall2[startingField.row][startingField.column].quer.strokeColor = "red"
+                        markedFields = 0
+                        startingField.strokeColor = "white"
+                        startingField.strokeWidth = 0
+                        computerPlays()
+                    } else if (startingField.column < tryDiscoverField.column && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "quer", Wall2)) {
+                        turn = "computersTurn"
+                        Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.strokeColor = "red"
+                        markedFields = 0
+                        startingField.strokeColor = "white"
+                        startingField.strokeWidth = 0
+                        computerPlays()
+                    } else {
+                        tryDiscoverField.discovered = true
+                        tryDiscoverField.fillColor = "orange"
+                        startingField.strokeColor = "white"
+                        startingField.strokeWidth = 0
+                        markedFields = 0
+                        if (tryDiscoverField.treasure == true) {
+                            gameStage = "finish"
+                            alert("Du hast den Schatz gefunden.\rLade die Seite neu, um noch einmal zu spielen.")
+                        }
+                        computerPlays()
+                    }
+                    markAccessibleFields(startingField)
+                } else {
+                    feld.strokeColor = "white"
+                    feld.strokeWidth = 0
+                    startingField.strokeColor = "white"
+                    startingField.strokeWidth = 0
+                    startingField
+                    markAccessibleFields(startingField)
+                }
             } else {
-                event.currentTarget.strokeColor = "white"
-                event.currentTarget.strokeWidth = 0
+                console.log("ja")
+                feld.strokeColor = "white"
+                feld.strokeWidth = 0
+                startingField;
+                accessibleFields;
+                markAccessibleFields(this)
+                markedFields = 0
             }
-        }
-        turn = "computersTurn"
-        computerPlays()
+        } 
     }
     return feld;
 }
@@ -307,7 +396,6 @@ start = () => {
                 }
             }
         
-        
             for (var x = 0; x < 8; x++) {
                 for (var y = 0; y < 8; y++) {
                     if (y == 0) {
@@ -331,6 +419,10 @@ start = () => {
             rahmenInnen = new Path.Rectangle(new Point(982, 82), new Size(794,794));
             rahmenInnen.strokeColor = "blue";
             rahmenInnen.strokeWidth = 10;
+
+            Field2[0][0].discovered = true
+            Field2[0][0].fillColor = "yellow"
+
             computerPlays();
         }
     }
@@ -354,8 +446,6 @@ start = () => {
             const punktX = 87+100*x;
             const punktY = 87+100*y;
             Field[x][y] = zeichneFeld(punktX, punktY, "white")
-            Field[x][y].row = x
-            Field[x][y].column = y
         }
     }
 
