@@ -26,7 +26,6 @@ const computerPlays = () => {
     if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch")) {
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
-        turn = "playersTurn"
     } else if (Ausgangsfeld.row < tryDiscoverField.row && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "hoch")) {
         Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.discovered = true
         Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "blue"
@@ -61,16 +60,16 @@ const AusgangsfeldFinden = () => {
 }
 
 const findUndiscoveredNeighbors = (x, y) => {
-    let neighbors = [[x, y-1, "down"], [x, y+1, "up"], [x-1, y, "left"], [x+1, y, "right"]] // definiert mögliche Nachbarn
+    let neighbors = [[x, y-1, "up"], [x, y+1, "down"], [x-1, y, "left"], [x+1, y, "right"]] // definiert mögliche Nachbarn
     let undiscoveredNeighbors = [] // Legt eine Array für alle positiven Dinge an
     for (coordinates of neighbors) { //Mit allen Wertegruppen aus neighbors wird folgendes gemacht:
         let checkX = coordinates[0] 
         let checkY = coordinates[1]
         let checkDir = coordinates[2]
-        if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) {
-            if (checkDir == "up" && isUndiscoveredWall(x,y,"quer")) {
+        if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) { 
+            if (checkDir == "up" && isUndiscoveredWall(x,y,"quer")) { //hier muss irgendwo was falsch sein
                 undiscoveredNeighbors.push(Field[checkX][checkY])
-            } else if (checkDir == "down" && isUndiscoveredWall(x,y+1, "quer")) {
+            } else if (checkDir == "down" && isUndiscoveredWall(x,y+1, "quer")) { // hier muss irgendwo was falsch sein
                 undiscoveredNeighbors.push(Field[checkX][checkY])
             } else if (checkDir == "left" && isUndiscoveredWall(x,y, "hoch")) {
                 undiscoveredNeighbors.push(Field[checkX][checkY])
