@@ -27,21 +27,19 @@ const computerPlays = () => {
         gameStage = "finished"
         return;
     }
-    let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column); //die Nachbarfelder, die noch nicht bekannt sind, und keine bekannte Wand
-    
-    
+    let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column, Field); //die Nachbarfelder, die noch nicht bekannt sind, und keine bekannte Wand
     nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
     tryDiscoverField = nextFields[nextFieldRandom]
-    if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch")) {
+    if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch", Wall)) {
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
-    } else if (Ausgangsfeld.row < tryDiscoverField.row && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "hoch")) {
+    } else if (Ausgangsfeld.row < tryDiscoverField.row && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "hoch", Wall)) {
         Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.discovered = true
         Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "blue"
-    } else if (Ausgangsfeld.column > tryDiscoverField.column && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "quer")) {
+    } else if (Ausgangsfeld.column > tryDiscoverField.column && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "quer", Wall)) {
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.discovered = true
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.strokeColor = "blue"
-    } else if (Ausgangsfeld.column < tryDiscoverField.column && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "quer")) {
+    } else if (Ausgangsfeld.column < tryDiscoverField.column && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "quer", Wall)) {
         Wall[tryDiscoverField.row][tryDiscoverField.column].quer.discovered = true
         Wall[tryDiscoverField.row][tryDiscoverField.column].quer.strokeColor = "blue"
     } else {
@@ -55,8 +53,33 @@ const computerPlays = () => {
     }
 }
 
+const computerBuildsLabyrinth = () => {
+    randXField = Math.floor(Math.random()*Field2.length)
+    randYField = Math.floor(Math.random()*Field2.length)
+    console.log(randXField, randYField)
+    Field2[randXField][randYField].treasure = true
+    Field2[randXField][randYField].fillColor = "black"
+    setWalls()
+}
 
-const allFieldsReachable = () => {
+const setWalls = () => {
+    directions = ["hoch","quer"]
+    for(let i = 0; i < 100; i++) {
+        randXWall = Math.floor(Math.random() * Wall2.length)
+        randYWall = Math.floor(Math.random() * Wall2.length)
+        randDir = directions[Math.floor(Math.random() * directions.length)]
+        Wall2[randXWall][randYWall][randDir].zu = true
+        if(allFieldsReachable(Field2)) {
+        Wall2[randXWall][randYWall][randDir].strokeColor = "blue"
+        Wall2[randXWall][randYWall][randDir].strokeWidth = 5
+        } else Wall2[randXWall][randYWall][randDir].zu = false
+    }
+}
+
+const allFieldsReachable = (gameBoard) => {
+    let boardWalls;
+    if (gameBoard == Field) boardWalls = Wall
+    else if (gameBoard == Field2) boardWalls = Wall2
     let reachableFields = {}
     reachableFields[[0, 0]] = true
     while(Object.values(reachableFields).length < 64) {
@@ -64,15 +87,15 @@ const allFieldsReachable = () => {
         for(let i = 0; i < Object.values(reachableFields).length; i++) {
             let x = Math.floor(Object.keys(reachableFields)[i].split(",")[0])
             let y = Math.floor(Object.keys(reachableFields)[i].split(",")[1])
-            neighbors = findUndiscoveredNeighbors(x,y)
+            neighbors = findUndiscoveredNeighbors(x,y,gameBoard)
             for(fields of neighbors) {
-                if (Field[x][y].row > fields.row && isZuWall(Field[x][y].row, Field[x][y].column, "hoch")) {
+                if (gameBoard[x][y].row > fields.row && isZuWall(gameBoard[x][y].row, gameBoard[x][y].column, "hoch", boardWalls)) {
 
-                } else if (Field[x][y].row < fields.row && isZuWall(fields.row, fields.column, "hoch")) {
+                } else if (gameBoard[x][y].row < fields.row && isZuWall(fields.row, fields.column, "hoch", boardWalls)) {
                     
-                } else if (Field[x][y].column > fields.column && isZuWall(Field[x][y].row, Field[x][y].column, "quer")) {
+                } else if (gameBoard[x][y].column > fields.column && isZuWall(gameBoard[x][y].row, gameBoard[x][y].column, "quer", boardWalls)) {
                     
-                } else if (Field[x][y].column < fields.column && isZuWall(fields.row, fields.column, "quer")) {
+                } else if (gameBoard[x][y].column < fields.column && isZuWall(fields.row, fields.column, "quer", boardWalls)) {
 
                 } else reachableFields[[fields.row,fields.column]] = true
                     
@@ -87,7 +110,7 @@ const AusgangsfeldFinden = () => {
     let discoveredFields = [];
     for (let x = 0; x < 8; x++) {
         for (let y = 0; y < 8; y++) {
-            if (Field[x][y].discovered && findUndiscoveredNeighbors(x,y).length > 0) {
+            if (Field[x][y].discovered && findUndiscoveredNeighbors(x,y,Field).length > 0) {
                 discoveredFields.push(Field[x][y])
             }
         }
@@ -95,34 +118,37 @@ const AusgangsfeldFinden = () => {
     return discoveredFields;
 }
 
-const findUndiscoveredNeighbors = (x, y) => {
+const findUndiscoveredNeighbors = (x, y, gameBoard) => {
+    let boardWalls;
+    if (gameBoard == Field) boardWalls = Wall
+    else if (gameBoard == Field2) boardWalls = Wall2 
     let neighbors = [[x, y-1, "up"], [x, y+1, "down"], [x-1, y, "left"], [x+1, y, "right"]] // definiert mögliche Nachbarn
     let undiscoveredNeighbors = [] // Legt eine Array für alle positiven Dinge an
     for (coordinates of neighbors) { //Mit allen Wertegruppen aus neighbors wird folgendes gemacht:
         let checkX = coordinates[0] 
         let checkY = coordinates[1]
         let checkDir = coordinates[2]
-        if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) { 
-            if (checkDir == "up" && isUndiscoveredWall(x,y,"quer")) {
-                undiscoveredNeighbors.push(Field[checkX][checkY])
-            } else if (checkDir == "down" && isUndiscoveredWall(x,y+1, "quer")) {
-                undiscoveredNeighbors.push(Field[checkX][checkY])
-            } else if (checkDir == "left" && isUndiscoveredWall(x,y, "hoch")) {
-                undiscoveredNeighbors.push(Field[checkX][checkY])
-            } else if (checkDir == "right" && isUndiscoveredWall(x+1,y, "hoch")) {
-                undiscoveredNeighbors.push(Field[checkX][checkY])
+        if (gameBoard[checkX] && gameBoard[checkX][checkY] && !(gameBoard[checkX][checkY].discovered)) { 
+            if (checkDir == "up" && isUndiscoveredWall(x,y,"quer", boardWalls)) {
+                undiscoveredNeighbors.push(gameBoard[checkX][checkY])
+            } else if (checkDir == "down" && isUndiscoveredWall(x,y+1, "quer", boardWalls)) {
+                undiscoveredNeighbors.push(gameBoard[checkX][checkY])
+            } else if (checkDir == "left" && isUndiscoveredWall(x,y, "hoch", boardWalls)) {
+                undiscoveredNeighbors.push(gameBoard[checkX][checkY])
+            } else if (checkDir == "right" && isUndiscoveredWall(x+1,y, "hoch", boardWalls)) {
+                undiscoveredNeighbors.push(gameBoard[checkX][checkY])
             }
         }
     }
     return undiscoveredNeighbors
 }
 
-const isUndiscoveredWall = (x, y, direction) => {
-    return (Wall[x] && Wall[x][y] && !Wall[x][y][direction]?.discovered) 
+const isUndiscoveredWall = (x, y, direction,boardWalls) => {
+    return (boardWalls[x] && boardWalls[x][y] && !boardWalls[x][y][direction]?.discovered) 
 }
 
-const isZuWall = (x,y,direction) => {
-    return (Wall[x] && Wall[x][y] && Wall[x][y][direction]?.zu)
+const isZuWall = (x,y,direction,boardWalls) => {
+    return (boardWalls[x] && boardWalls[x][y] && boardWalls[x][y][direction]?.zu)
 }
 
 const zeichneFeld = (x, y, farbe) => {
@@ -225,11 +251,12 @@ const zeichneWand = (x, y, hoehe, breite, farbe) => {
                 wand.zu = false;
             } else {
                 wand.zu = true;
-                if (allFieldsReachable()) {
+                if (allFieldsReachable(Field)) {
                     event.currentTarget.strokeColor = "red"
                     event.currentTarget.strokeWidth = 5
                     this.bringToFront()
                 } else {
+                    alert("Alle Felder müssen erreichbar sein")
                     wand.zu = false;
                 }
             }
@@ -262,6 +289,7 @@ start = () => {
     weiter.onClick = function (event) {
         if (gameStage == "buildLabyrinth") {
             gameStage = "buryTreasure"
+            rahmenInnen.bringToFront()
         } else if (gameStage == "buryTreasure" && treasureBuried == true) {
             gameStage = "huntTreasure"
             weiter.remove()
@@ -273,28 +301,28 @@ start = () => {
                     }
                     const punktX = 987+100*x;
                     const punktY = 87+100*y;
-                    Field2[x][y] = {
-                        feld: zeichneFeld2(punktX, punktY, "white"),
-                    }
+                    Field2[x][y] = zeichneFeld2(punktX, punktY, "white"),
                     Field2[x][y].row = x
                     Field2[x][y].column = y
                 }
             }
         
         
-            for (var x = 0; x < 7; x++) {
+            for (var x = 0; x < 8; x++) {
                 for (var y = 0; y < 8; y++) {
                     if (y == 0) {
                         Wall2[x] = []
                     }
-                    const punktX = 180 + 100*x
+                    const punktX = 80 + 100*x
                     const punktY = 80 + 100*y
                     Wall2[x][y] = {
                         hoch: zeichneWand(punktX+900, punktY, 5, 100, "#eaeaea"),
-                        quer: zeichneWand(punktY+900, punktX, 100, 5, "#eaeaea"),
+                        quer: zeichneWand(punktX+900, punktY, 100, 5, "#eaeaea"),
                     }
                 }
             }
+
+            computerBuildsLabyrinth();
 
             rahmenAussen = new Path.Rectangle(new Point(964, 64), new Size(830, 830));
             rahmenAussen.strokeColor = "black";
