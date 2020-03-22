@@ -32,8 +32,7 @@ const computerPlays = () => {
             gameStage = "finished"
             return;
         }
-        let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column, Field); //die Nachbarfelder, die noch nicht bekannt sind, und keine bekannte Wand
-        console.log(Ausgangsfeld.row, Ausgangsfeld.column)
+        let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column, Field);
         nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
         tryDiscoverField = nextFields[nextFieldRandom]
         if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch", Wall)) {
@@ -72,7 +71,6 @@ const computerPlays = () => {
 const showLabyrinth = () => {
     for (let i = 0; i < Wall2.length; i++) {
         for (let y = 0; y < Wall2[i].length; y++) {
-            console.log(i,y)
             if (Wall2[i][y].hoch.zu) {
                 Wall2[i][y].hoch.strokeColor = "blue"
                 Wall2[i][y].hoch.strokeWidth = 5
@@ -118,7 +116,9 @@ const setWalls = () => {
 }
 
 const markAccessibleFields = (field) => {
-    accessibleFields = findUndiscoveredNeighbors(field.row, field.column, Field2)
+    undiscoveredNeighbors = findUndiscoveredNeighbors(field.row, field.column, Field2)
+    accessibleFields = isKnownWall(field, undiscoveredNeighbors)
+    console.log(undiscoveredNeighbors, accessibleFields)
     for(let i = 0; i < accessibleFields.length; i++) {
         if (accessibleFields[i].fillColor.equals("#ccffcc")) {
             accessibleFields[i].fillColor = "white"
@@ -203,6 +203,23 @@ const isZuWall = (x,y,direction,boardWalls) => {
     return (boardWalls[x] && boardWalls[x][y] && boardWalls[x][y][direction]?.zu)
 }
 
+const isKnownWall = (middleField, ListOfFields) => {
+    let noWallBetween = [];
+    for(fields of ListOfFields) {
+        if (middleField.row > fields.row && Wall2[middleField.row][middleField.column].hoch.discovered) {
+
+        } else if (middleField.row < fields.row && Wall2[fields.row][fields.column].hoch.discovered) {
+            
+        } else if (middleField.column > fields.column && Wall2[middleField.row][middleField.column].quer.discovered) {
+            
+        } else if (middleField.column < fields.column && Wall2[fields.row][fields.column].quer.discovered) {
+
+        } else noWallBetween.push(fields)
+            
+    }
+    return noWallBetween
+}
+
 const zeichneFeld = (x, y, farbe) => {
     let feld = new Path.Rectangle(new Point(x, y), new Size(91, 91))
     feld.fillColor = farbe;
@@ -276,7 +293,8 @@ const zeichneFeld2 = (x, y, farbe) => {
                 if (feld.discovered && findUndiscoveredNeighbors(feld.row, feld.column, Field2).length > 0) {
                     event.currentTarget.strokeColor = "black"
                     event.currentTarget.strokeWidth = 5
-                    accessibleFields = findUndiscoveredNeighbors(feld.row, feld.column, Field2)
+                    undiscoveredNeighbors = findUndiscoveredNeighbors(feld.row, feld.column, Field2)
+                    accessibleFields = isKnownWall(feld, undiscoveredNeighbors)
                     startingField = this
                     markAccessibleFields(this);
                     markedFields = 1
@@ -288,6 +306,8 @@ const zeichneFeld2 = (x, y, farbe) => {
                         turn = "computersTurn"
                         Wall2[startingField.row][startingField.column].hoch.strokeColor = "red"
                         Wall2[startingField.row][startingField.column].hoch.strokeWidth = 5
+                        Wall2[startingField.row][startingField.column].hoch.discovered = true
+                        tryDiscoverField.fillColor = "#e6f3f7"
                         markedFields = 0
                         startingField.strokeColor = "white"
                         startingField.strokeWidth = 0
@@ -296,6 +316,8 @@ const zeichneFeld2 = (x, y, farbe) => {
                         turn = "computersTurn"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "red"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeWidth = 5
+                        Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.discovered = true
+                        tryDiscoverField.fillColor = "#e6f3f7"
                         markedFields = 0
                         startingField.strokeColor = "white"
                         startingField.strokeWidth = 0
@@ -304,6 +326,8 @@ const zeichneFeld2 = (x, y, farbe) => {
                         turn = "computersTurn"
                         Wall2[startingField.row][startingField.column].quer.strokeColor = "red"
                         Wall2[startingField.row][startingField.column].quer.strokeWidth = 5
+                        Wall2[startingField.row][startingField.column].quer.discovered = true
+                        tryDiscoverField.fillColor = "#e6f3f7"
                         markedFields = 0
                         startingField.strokeColor = "white"
                         startingField.strokeWidth = 0
@@ -312,6 +336,8 @@ const zeichneFeld2 = (x, y, farbe) => {
                         turn = "computersTurn"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.strokeColor = "red"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.strokeWidth = 5
+                        Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.discovered = true
+                        tryDiscoverField.fillColor = "#e6f3f7"
                         markedFields = 0
                         startingField.strokeColor = "white"
                         startingField.strokeWidth = 0
