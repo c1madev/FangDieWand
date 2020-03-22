@@ -14,15 +14,24 @@ const computerPlays = () => {
     Field[0][0].fillColor = "yellow" // dieses Feld wird durch gelbe Farbe visualisiert
     let Ausgangsfelder = AusgangsfeldFinden(); //mögliche Ausgangsfelder werden gefunden
     AusgangsfeldRandom = Math.floor(Ausgangsfelder.length * Math.random()) //daraus wird random eines Ausgewählt
-    Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom]
-    if (Ausgangsfeld.fillColor.equals("yellow") || Ausgangsfeld.fillColor.equals("white") || Ausgangsfeld.fillColor.equals("#cccccc")) {
-        console.log(findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column))
-        Ausgangsfeld.fillColor = "#ciadec"
-    } else Ausgangsfeld.fillColor = "#cccccc"
+    if(Ausgangsfelder.length > 0) {
+        Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom]
+    } else {
+        gameStage = "finished"
+        alert("Das Labyrinth ist unmöglich.\rDer Computer hat gewonnen.")
+        return;
+    }
+    if(Ausgangsfeld.treasure == true) {
+        Ausgangsfeld.fillColor = "orange"
+        alert("Fast hätte ich A/1 beim Programmieren übersehen.\rTja, leider doch nicht.\rUm nocheinmal zu spielen, lade die Seite neu.")
+        gameStage = "finished"
+        return;
+    }
     let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column); //die Nachbarfelder, die noch nicht bekannt sind, und keine bekannte Wand
+    
+    
     nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
     tryDiscoverField = nextFields[nextFieldRandom]
-    console.log("von " + Ausgangsfeld.row + "," + Ausgangsfeld.column + " auf " + tryDiscoverField.row + "," + tryDiscoverField.column)
     if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch")) {
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
@@ -40,10 +49,38 @@ const computerPlays = () => {
         tryDiscoverField.discovered = true
         if (tryDiscoverField.treasure == true) {
             tryDiscoverField.fillColor = "orange"
-            alert("Das Spiel ist vorbei.\rDer Computer hat den Schatz gefunden.\rDu hast verloren.")
+            alert("Das Spiel ist vorbei.\rDer Computer hat den Schatz gefunden.\rDu hast verloren.\rUm nocheinmal zu spielen, lade die Seite neu.")
+            gameStage = "finished"
         } 
     }
-    console.log(nextFields.length)
+}
+
+
+const allFieldsReachable = () => {
+    let reachableFields = {}
+    reachableFields[[0, 0]] = true
+    while(Object.values(reachableFields).length < 64) {
+        formerLength = Object.values(reachableFields).length
+        for(let i = 0; i < Object.values(reachableFields).length; i++) {
+            let x = Math.floor(Object.keys(reachableFields)[i].split(",")[0])
+            let y = Math.floor(Object.keys(reachableFields)[i].split(",")[1])
+            neighbors = findUndiscoveredNeighbors(x,y)
+            for(fields of neighbors) {
+                if (Field[x][y].row > fields.row && isZuWall(Field[x][y].row, Field[x][y].column, "hoch")) {
+
+                } else if (Field[x][y].row < fields.row && isZuWall(fields.row, fields.column, "hoch")) {
+                    
+                } else if (Field[x][y].column > fields.column && isZuWall(Field[x][y].row, Field[x][y].column, "quer")) {
+                    
+                } else if (Field[x][y].column < fields.column && isZuWall(fields.row, fields.column, "quer")) {
+
+                } else reachableFields[[fields.row,fields.column]] = true
+                    
+            }
+        } 
+        if(formerLength == Object.values(reachableFields).length) return false
+    }
+    return true;
 }
 
 const AusgangsfeldFinden = () => {
@@ -52,7 +89,6 @@ const AusgangsfeldFinden = () => {
         for (let y = 0; y < 8; y++) {
             if (Field[x][y].discovered && findUndiscoveredNeighbors(x,y).length > 0) {
                 discoveredFields.push(Field[x][y])
-                console.log("Discovered Field = Field" + x + " " + y)
             }
         }
     }
@@ -67,9 +103,9 @@ const findUndiscoveredNeighbors = (x, y) => {
         let checkY = coordinates[1]
         let checkDir = coordinates[2]
         if (Field[checkX] && Field[checkX][checkY] && !(Field[checkX][checkY].discovered)) { 
-            if (checkDir == "up" && isUndiscoveredWall(x,y,"quer")) { //hier muss irgendwo was falsch sein
+            if (checkDir == "up" && isUndiscoveredWall(x,y,"quer")) {
                 undiscoveredNeighbors.push(Field[checkX][checkY])
-            } else if (checkDir == "down" && isUndiscoveredWall(x,y+1, "quer")) { // hier muss irgendwo was falsch sein
+            } else if (checkDir == "down" && isUndiscoveredWall(x,y+1, "quer")) {
                 undiscoveredNeighbors.push(Field[checkX][checkY])
             } else if (checkDir == "left" && isUndiscoveredWall(x,y, "hoch")) {
                 undiscoveredNeighbors.push(Field[checkX][checkY])
@@ -188,10 +224,14 @@ const zeichneWand = (x, y, hoehe, breite, farbe) => {
                 this.sendToBack()
                 wand.zu = false;
             } else {
-                event.currentTarget.strokeColor = "red"
-                event.currentTarget.strokeWidth = 5
-                this.bringToFront()
                 wand.zu = true;
+                if (allFieldsReachable()) {
+                    event.currentTarget.strokeColor = "red"
+                    event.currentTarget.strokeWidth = 5
+                    this.bringToFront()
+                } else {
+                    wand.zu = false;
+                }
             }
         }
     }
