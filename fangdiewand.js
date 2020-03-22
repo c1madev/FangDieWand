@@ -87,7 +87,7 @@ const showLabyrinth = () => {
     for (let i = 0; i < Field2.length; i++) {
         for (let y = 0; y < Field2[i].length; y++) {
             if (Field2[i][y].treasure) {
-                Field2[i][y].fillColor = "red"
+                Field2[i][y].fillColor = "green"
                 break
             }
         }
