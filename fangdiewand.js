@@ -14,49 +14,59 @@ let startingField
 let tryDiscoverField
 
 const computerPlays = () => {
-    Field[0][0].discovered = true // ein Feld wird als bekannt markiert (0/0)
-    Field[0][0].fillColor = "yellow" // dieses Feld wird durch gelbe Farbe visualisiert
-    let Ausgangsfelder = AusgangsfeldFinden(); //mögliche Ausgangsfelder werden gefunden
-    AusgangsfeldRandom = Math.floor(Ausgangsfelder.length * Math.random()) //daraus wird random eines Ausgewählt
-    if(Ausgangsfelder.length > 0) {
-        Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom]
-    } else {
-        gameStage = "finished"
-        alert("Das Labyrinth ist unmöglich.\rDer Computer hat gewonnen.")
-        return;
-    }
-    if(Ausgangsfeld.treasure == true) {
-        Ausgangsfeld.fillColor = "orange"
-        alert("Fast hätte ich A/1 beim Programmieren übersehen.\rTja, leider doch nicht.\rUm nocheinmal zu spielen, lade die Seite neu.")
-        gameStage = "finished"
-        return;
-    }
-    let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column, Field); //die Nachbarfelder, die noch nicht bekannt sind, und keine bekannte Wand
-    console.log(Ausgangsfeld.row, Ausgangsfeld.column)
-    nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
-    tryDiscoverField = nextFields[nextFieldRandom]
-    if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch", Wall)) {
-        Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
-        Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
-    } else if (Ausgangsfeld.row < tryDiscoverField.row && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "hoch", Wall)) {
-        Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.discovered = true
-        Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "blue"
-    } else if (Ausgangsfeld.column > tryDiscoverField.column && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "quer", Wall)) {
-        Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.discovered = true
-        Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.strokeColor = "blue"
-    } else if (Ausgangsfeld.column < tryDiscoverField.column && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "quer", Wall)) {
-        Wall[tryDiscoverField.row][tryDiscoverField.column].quer.discovered = true
-        Wall[tryDiscoverField.row][tryDiscoverField.column].quer.strokeColor = "blue"
-    } else {
-        tryDiscoverField.fillColor = "yellow"
-        tryDiscoverField.discovered = true
-        if (tryDiscoverField.treasure == true) {
-            tryDiscoverField.fillColor = "orange"
-            alert("Das Spiel ist vorbei.\rDer Computer hat den Schatz gefunden.\rDu hast verloren.\rUm nocheinmal zu spielen, lade die Seite neu.")
+    while (turn = "computersTurn") {
+        Field[0][0].discovered = true // ein Feld wird als bekannt markiert (0/0)
+        Field[0][0].fillColor = "yellow" // dieses Feld wird durch gelbe Farbe visualisiert
+        let Ausgangsfelder = AusgangsfeldFinden(); //mögliche Ausgangsfelder werden gefunden
+        AusgangsfeldRandom = Math.floor(Ausgangsfelder.length * Math.random()) //daraus wird random eines Ausgewählt
+        if(Ausgangsfelder.length > 0) {
+            Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom]
+        } else {
             gameStage = "finished"
-        } 
+            alert("Das Labyrinth ist unmöglich.\rDer Computer hat gewonnen.")
+            return;
+        }
+        if(Ausgangsfeld.treasure == true) {
+            Ausgangsfeld.fillColor = "orange"
+            alert("Fast hätte ich A/1 beim Programmieren übersehen.\rTja, leider doch nicht.\rUm nocheinmal zu spielen, lade die Seite neu.")
+            gameStage = "finished"
+            return;
+        }
+        let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column, Field); //die Nachbarfelder, die noch nicht bekannt sind, und keine bekannte Wand
+        console.log(Ausgangsfeld.row, Ausgangsfeld.column)
+        nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
+        tryDiscoverField = nextFields[nextFieldRandom]
+        if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch", Wall)) {
+            Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
+            Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
+            turn = "playersTurn"
+            break
+        } else if (Ausgangsfeld.row < tryDiscoverField.row && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "hoch", Wall)) {
+            Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.discovered = true
+            Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "blue"
+            turn = "playersTurn"
+            break
+        } else if (Ausgangsfeld.column > tryDiscoverField.column && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "quer", Wall)) {
+            Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.discovered = true
+            Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.strokeColor = "blue"
+            turn = "playersTurn"
+            break
+        } else if (Ausgangsfeld.column < tryDiscoverField.column && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "quer", Wall)) {
+            Wall[tryDiscoverField.row][tryDiscoverField.column].quer.discovered = true
+            Wall[tryDiscoverField.row][tryDiscoverField.column].quer.strokeColor = "blue"
+            turn = "playersTurn"
+            break
+        } else {
+            tryDiscoverField.fillColor = "yellow"
+            tryDiscoverField.discovered = true
+            if (tryDiscoverField.treasure == true) {
+                tryDiscoverField.fillColor = "orange"
+                alert("Das Spiel ist vorbei.\rDer Computer hat den Schatz gefunden.\rDu hast verloren.\rUm nocheinmal zu spielen, lade die Seite neu.")
+                gameStage = "finished"
+                break
+            } 
+        }
     }
-    turn = "playersTurn"
 }
 
 const computerBuildsLabyrinth = () => {
@@ -67,7 +77,6 @@ const computerBuildsLabyrinth = () => {
     randYField = Math.floor(Math.random()*Field2.length)
     }
     Field2[randXField][randYField].treasure = true
-    Field2[randXField][randYField].fillColor = "black"
     setWalls()
 }
 
@@ -79,8 +88,6 @@ const setWalls = () => {
         let randDir = directions[Math.floor(Math.random() * directions.length)]
         Wall2[randXWall][randYWall][randDir].zu = true
         if(allFieldsReachable(Field2)) {
-        Wall2[randXWall][randYWall][randDir].strokeColor = "blue"
-        Wall2[randXWall][randYWall][randDir].strokeWidth = 5
         } else Wall2[randXWall][randYWall][randDir].zu = false
     }
 }
@@ -255,6 +262,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                     if (startingField.row > tryDiscoverField.row && isZuWall(startingField.row, startingField.column, "hoch", Wall2)) {
                         turn = "computersTurn"
                         Wall2[startingField.row][startingField.column].hoch.strokeColor = "red"
+                        Wall2[startingField.row][startingField.column].hoch.strokeWidth = 5
                         markedFields = 0
                         startingField.strokeColor = "white"
                         startingField.strokeWidth = 0
@@ -262,6 +270,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                     } else if (startingField.row < tryDiscoverField.row && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "hoch", Wall2)) {
                         turn = "computersTurn"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "red"
+                        Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeWidth = 5
                         markedFields = 0
                         startingField.strokeColor = "white"
                         startingField.strokeWidth = 0
@@ -269,6 +278,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                     } else if (startingField.column > tryDiscoverField.column && isZuWall(startingField.row, startingField.column, "quer", Wall2)) {
                         turn = "computersTurn"
                         Wall2[startingField.row][startingField.column].quer.strokeColor = "red"
+                        Wall2[startingField.row][startingField.column].quer.strokeWidth = 5
                         markedFields = 0
                         startingField.strokeColor = "white"
                         startingField.strokeWidth = 0
@@ -276,6 +286,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                     } else if (startingField.column < tryDiscoverField.column && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "quer", Wall2)) {
                         turn = "computersTurn"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.strokeColor = "red"
+                        Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.strokeWidth = 5
                         markedFields = 0
                         startingField.strokeColor = "white"
                         startingField.strokeWidth = 0
@@ -290,22 +301,20 @@ const zeichneFeld2 = (x, y, farbe) => {
                             gameStage = "finish"
                             alert("Du hast den Schatz gefunden.\rLade die Seite neu, um noch einmal zu spielen.")
                         }
-                        computerPlays()
                     }
                     markAccessibleFields(startingField)
                 } else {
-                    feld.strokeColor = "white"
-                    feld.strokeWidth = 0
                     startingField.strokeColor = "white"
                     startingField.strokeWidth = 0
-                    startingField
+                    markedFields = 0    
                     markAccessibleFields(startingField)
+                    startingField = {}
+                    
                 }
             } else {
-                console.log("ja")
                 feld.strokeColor = "white"
                 feld.strokeWidth = 0
-                startingField;
+                startingField = {}
                 accessibleFields;
                 markAccessibleFields(this)
                 markedFields = 0
