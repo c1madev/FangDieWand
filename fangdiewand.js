@@ -13,6 +13,12 @@ let accessibleFields
 let startingField
 let tryDiscoverField
 
+const resize = (x) => {
+    if (paper.view.size.height/9 < paper.view.size.width/16) return x/951*paper.view.size.height
+    else return x/1851*paper.view.size.width
+}
+
+
 const computerPlays = () => {
     while (turn = "computersTurn") {
         Field[0][0].discovered = true // ein Feld wird als bekannt markiert (0/0)
@@ -34,6 +40,7 @@ const computerPlays = () => {
         }
         let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column, Field);
         nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
+        console.log(nextFields, nextFieldRandom)
         tryDiscoverField = nextFields[nextFieldRandom]
         if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch", Wall)) {
             Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
@@ -74,12 +81,12 @@ const showLabyrinth = () => {
         for (let y = 0; y < Wall2[i].length; y++) {
             if (Wall2[i][y].hoch.zu && !Wall2[i][y].hoch.discovered) {
                 Wall2[i][y].hoch.strokeColor = "blue"
-                Wall2[i][y].hoch.strokeWidth = 5
+                Wall2[i][y].hoch.strokeWidth = resize(5)
                 Wall2[i][y].hoch.bringToFront()
             }
             if (Wall2[i][y].quer.zu && !Wall2[i][y].quer.discovered) {
                 Wall2[i][y].quer.strokeColor = "blue"
-                Wall2[i][y].quer.strokeWidth = 5
+                Wall2[i][y].quer.strokeWidth = resize(5)
                 Wall2[i][y].quer.bringToFront()
             }
         } 
@@ -87,7 +94,8 @@ const showLabyrinth = () => {
     for (let i = 0; i < Field2.length; i++) {
         for (let y = 0; y < Field2[i].length; y++) {
             if (Field2[i][y].treasure) {
-                Field2[i][y].fillColor = "green"
+                console.log(Field2[i][y], i, y)
+                if (!Field2[i][y].discovered) Field2[i][y].fillColor = "green"
                 break
             }
         }
@@ -218,12 +226,12 @@ const colorLabyrinth = () => {
         for (y = 0; y < Wall[i].length; y++) {
             if (Wall[i][y].hoch.zu) {
                 Wall[i][y].hoch.strokeColor = "red"
-                Wall[i][y].hoch.strokeWidth = 5
+                Wall[i][y].hoch.strokeWidth = resize(5)
                 Wall[i][y].hoch.bringToFront()
             }
             if (Wall[i][y].quer.zu) {
                 Wall[i][y].quer.strokeColor = "red"
-                Wall[i][y].quer.strokeWidth = 5
+                Wall[i][y].quer.strokeWidth = resize(5)
                 Wall[i][y].quer.bringToFront()
             }
             if (Field[i] && Field[i][y] && Field[i][y].treasure) Field[i][y].fillColor = "black"
@@ -257,19 +265,19 @@ const isKnownWall = (middleField, ListOfFields) => {
 }
 
 const zeichneFeld = (x, y, farbe) => {
-    let feld = new Path.Rectangle(new Point(x, y), new Size(91, 91))
+    let feld = new Path.Rectangle(new Point(x, y), new Size(resize(77), resize(77)))
     feld.fillColor = farbe;
     feld.strokeColor = farbe;
     feld.strokeWidth = 0;
     feld.discovered = false;
     feld.treasure = false
-    feld.row = (x-87)/100
-    feld.column = (y-87)/100
+    //feld.row = (x-resize(87))/Math.floor(resize(86))
+    //feld.column = (y-resize(87))/Math.floor(resize(86))
     feld.onMouseEnter = function (event) {
         if (gameStage == "buryTreasure") {
         canvas.style.cursor = "pointer";
         this.strokeColor = "green"
-        feld.strokeWidth = 5
+        feld.strokeWidth = resize(5)
     }
     }
     feld.onMouseLeave = function (event) {
@@ -282,7 +290,7 @@ const zeichneFeld = (x, y, farbe) => {
             if (feld.fillColor.equals("white")) {
                 if(treasureBuried == false) {
                     event.currentTarget.fillColor = "black";
-                    event.currentTarget.strokeWidth = 2;
+                    event.currentTarget.strokeWidth = resize(2);
                     feld.treasure = true
                     treasureBuried = true
                 } else {
@@ -300,13 +308,11 @@ const zeichneFeld = (x, y, farbe) => {
 }
 
 const zeichneFeld2 = (x, y, farbe) => {
-    let feld = new Path.Rectangle(new Point(x, y), new Size(91, 91))
+    let feld = new Path.Rectangle(new Point(x, y), new Size(resize(77), resize(77)))
     feld.fillColor = farbe;
     feld.strokeColor = farbe;
     feld.strokeWidth = 0;
     feld.discovered = false;
-    feld.row = (x-87)/100
-    feld.column = (y-987)/100
     feld.onMouseEnter = function (event) {
         if (gameStage == "huntTreasure" && turn == "playersTurn") {
             canvas.style.cursor = "pointer"
@@ -328,7 +334,7 @@ const zeichneFeld2 = (x, y, farbe) => {
             if (markedFields == 0 && feld.strokeColor.equals("white")) {
                 if (feld.discovered && findUndiscoveredNeighbors(feld.row, feld.column, Field2).length > 0) {
                     event.currentTarget.strokeColor = "black"
-                    event.currentTarget.strokeWidth = 5
+                    event.currentTarget.strokeWidth = resize(5)
                     undiscoveredNeighbors = findUndiscoveredNeighbors(feld.row, feld.column, Field2)
                     accessibleFields = isKnownWall(feld, undiscoveredNeighbors)
                     startingField = this
@@ -342,7 +348,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                         turn = "computersTurn"
                         Wall2[startingField.row][startingField.column].hoch.strokeColor = "red"
                         Wall2[startingField.row][startingField.column].hoch.bringToFront()
-                        Wall2[startingField.row][startingField.column].hoch.strokeWidth = 5
+                        Wall2[startingField.row][startingField.column].hoch.strokeWidth = resize(5)
                         Wall2[startingField.row][startingField.column].hoch.discovered = true
                         tryDiscoverField.fillColor = "#e6f3f7"
                         markedFields = 0
@@ -353,7 +359,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                         turn = "computersTurn"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "red"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.bringToFront()
-                        Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeWidth = 5
+                        Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeWidth = resize(5)
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].hoch.discovered = true
                         tryDiscoverField.fillColor = "#e6f3f7"
                         markedFields = 0
@@ -364,7 +370,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                         turn = "computersTurn"
                         Wall2[startingField.row][startingField.column].quer.strokeColor = "red"
                         Wall2[startingField.row][startingField.column].quer.bringToFront()
-                        Wall2[startingField.row][startingField.column].quer.strokeWidth = 5
+                        Wall2[startingField.row][startingField.column].quer.strokeWidth = resize(5)
                         Wall2[startingField.row][startingField.column].quer.discovered = true
                         tryDiscoverField.fillColor = "#e6f3f7"
                         markedFields = 0
@@ -375,7 +381,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                         turn = "computersTurn"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.strokeColor = "red"
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.bringToFront()
-                        Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.strokeWidth = 5
+                        Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.strokeWidth = resize(5)
                         Wall2[tryDiscoverField.row][tryDiscoverField.column].quer.discovered = true
                         tryDiscoverField.fillColor = "#e6f3f7"
                         markedFields = 0
@@ -419,7 +425,7 @@ const zeichneFeld2 = (x, y, farbe) => {
 const zeichneWand = (x, y, hoehe, breite, farbe) => {
     let wand = new Path.Rectangle(new Point(x, y), new Size(hoehe, breite));
     wand.strokeColor = farbe;
-    wand.strokeWidth = 2;
+    wand.strokeWidth = resize(2);
     wand.fillColor = farbe;
     wand.zu = false
     wand.onMouseEnter = function (event) {
@@ -436,14 +442,14 @@ const zeichneWand = (x, y, hoehe, breite, farbe) => {
         if (gameStage == "buildLabyrinth") {
             if (wand.strokeColor.equals("red")) {
                 event.currentTarget.strokeColor = "#eaeaea"
-                event.currentTarget.strokeWidth = 2
+                event.currentTarget.strokeWidth = resize(2)
                 this.sendToBack()
                 wand.zu = false;
             } else {
                 wand.zu = true;
                 if (allFieldsReachable(Field)) {
                     event.currentTarget.strokeColor = "red"
-                    event.currentTarget.strokeWidth = 5
+                    event.currentTarget.strokeWidth = resize(5)
                     this.bringToFront()
                 } else {
                     alert("Alle Felder müssen erreichbar sein")
@@ -459,11 +465,12 @@ start = () => {
 
     document.title = "Fang die Wand!"
 
+    console.log(paper.view.size.height)
 
-    weiter = new Path.Rectangle(new Point(944, 64), new Size(100, 50))
+    weiter = new Path.Rectangle(new Point(resize(844), resize(64)), new Size(resize(100), resize(50)))
     weiter.fillColor = "white"
     weiter.strokeColor = "black";
-    weiter.strokeWidth = 6
+    weiter.strokeWidth = resize(6)
     weiter.onMouseDown = function (event) {
         event.currentTarget.strokeColor = "white"
         event.currentTarget.fillColor = "black"
@@ -495,8 +502,8 @@ start = () => {
                     if (y == 0) {
                         Field2[x] = [];
                     }
-                    const punktX = 987+100*x;
-                    const punktY = 87+100*y;
+                    const punktX = resize(887)+resize(86)*x;
+                    const punktY = resize(87)+resize(86)*y;
                     Field2[x][y] = zeichneFeld2(punktX, punktY, "white"),
                     Field2[x][y].row = x
                     Field2[x][y].column = y
@@ -508,24 +515,24 @@ start = () => {
                     if (y == 0) {
                         Wall2[x] = []
                     }
-                    const punktX = 80 + 100*x
-                    const punktY = 80 + 100*y
+                    const punktX = resize(80) + resize(86)*x
+                    const punktY = resize(80) + resize(86)*y
                     Wall2[x][y] = {
-                        hoch: zeichneWand(punktX+900, punktY, 5, 100, "#eaeaea"),
-                        quer: zeichneWand(punktX+900, punktY, 100, 5, "#eaeaea"),
+                        hoch: zeichneWand(punktX+resize(800), punktY, resize(5), resize(86), "#eaeaea"),
+                        quer: zeichneWand(punktX+resize(800), punktY, resize(86), resize(5), "#eaeaea"),
                     }
                 }
             }
 
             computerBuildsLabyrinth(Field2);
 
-            rahmenAussen2 = new Path.Rectangle(new Point(964, 64), new Size(830, 830));
+            rahmenAussen2 = new Path.Rectangle(new Point(resize(864), resize(64)), new Size(resize(727), resize(727)));
             rahmenAussen2.strokeColor = "black";
-            rahmenAussen2.strokeWidth = 15;
+            rahmenAussen2.strokeWidth = resize(15);
 
-            rahmenInnen2 = new Path.Rectangle(new Point(982, 82), new Size(794,794));
+            rahmenInnen2 = new Path.Rectangle(new Point(resize(882), resize(82)), new Size(resize(692), resize(692)));
             rahmenInnen2.strokeColor = "blue";
-            rahmenInnen2.strokeWidth = 10;
+            rahmenInnen2.strokeWidth = resize(10);
 
             Field2[0][0].discovered = true
             Field2[0][0].fillColor = "yellow"
@@ -534,14 +541,14 @@ start = () => {
         }
     }
 
-    var text = new PointText(new Point(994, 145));
+    var text = new PointText(new Point(resize(894), resize(145)));
     text.justification = "center";
     text.fillColor = "black";
     text.content = "WEITER";
 
-    rahmenAussen = new Path.Rectangle(new Point(64, 64), new Size(830, 830));
+    rahmenAussen = new Path.Rectangle(new Point(resize(64), resize(64)), new Size(resize(727), resize(727)));
     rahmenAussen.strokeColor = "black";
-    rahmenAussen.strokeWidth = 15;
+    rahmenAussen.strokeWidth = resize(15);
 
     var i = 0;
 
@@ -550,9 +557,11 @@ start = () => {
             if (y == 0) {
                 Field[x] = [];
             }
-            const punktX = 87+100*x;
-            const punktY = 87+100*y;
+            const punktX = resize(87)+resize(86)*x;
+            const punktY = resize(87)+resize(86)*y;
             Field[x][y] = zeichneFeld(punktX, punktY, "white")
+            Field[x][y].row = x
+            Field[x][y].column = y
         }
     }
 
@@ -562,16 +571,16 @@ start = () => {
             if (y == 0) {
                 Wall[x] = []
             }
-            const punktX = 80 + 100*x
-            const punktY = 80 + 100*y
+            const punktX = resize(80) + resize(86)*x
+            const punktY = resize(80) + resize(86)*y
             Wall[x][y] = {
-                hoch: zeichneWand(punktX, punktY, 5, 100, "#eaeaea"),
-                quer: zeichneWand(punktX, punktY, 100, 5, "#eaeaea"),
+                hoch: zeichneWand(punktX, punktY, resize(5), resize(86), "#eaeaea"),
+                quer: zeichneWand(punktX, punktY, resize(86), resize(5), "#eaeaea"),
             }
         }
     }
 
-    rahmenInnen = new Path.Rectangle(new Point(82, 82), new Size(794,794));
+    rahmenInnen = new Path.Rectangle(new Point(resize(82), resize(82)), new Size(resize(692),resize(692)));
     rahmenInnen.strokeColor = "red";
-    rahmenInnen.strokeWidth = 10;
+    rahmenInnen.strokeWidth = resize(10);
 }
