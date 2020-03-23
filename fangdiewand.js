@@ -14,8 +14,16 @@ let startingField
 let tryDiscoverField
 
 const resize = (x) => {
-    if (paper.view.size.height/9 < paper.view.size.width/16) return x/951*paper.view.size.height
-    else return x/1851*paper.view.size.width
+    if (highSize()) {
+        return x/1851*paper.view.size.height
+    } else {
+        if (paper.view.size.height/9 < paper.view.size.width/16) return x/951*paper.view.size.height
+        else return x/1851*paper.view.size.width
+    }
+}
+
+const highSize = () => {
+    if (paper.view.size.height > paper.view.size.width) return true
 }
 
 
@@ -466,8 +474,11 @@ start = () => {
     document.title = "Fang die Wand!"
 
     console.log(paper.view.size.height)
-
-    weiter = new Path.Rectangle(new Point(resize(844), resize(64)), new Size(resize(100), resize(50)))
+    if (highSize()) {
+        weiter = new Path.Rectangle(new Point(resize(64), resize(1614)), new Size(resize(100), resize(50)))
+    } else {
+        weiter = new Path.Rectangle(new Point(resize(1614), resize(64)), new Size(resize(100), resize(50)))       
+    }
     weiter.fillColor = "white"
     weiter.strokeColor = "black";
     weiter.strokeWidth = resize(6)
@@ -502,8 +513,15 @@ start = () => {
                     if (y == 0) {
                         Field2[x] = [];
                     }
-                    const punktX = resize(887)+resize(86)*x;
-                    const punktY = resize(87)+resize(86)*y;
+                    let punktX
+                    let punktY
+                    if (highSize()) {
+                        punktX = resize(87)+resize(86)*x;
+                        punktY = resize(887)+resize(86)*y;
+                    } else {
+                        punktX = resize(887)+resize(86)*x;
+                        punktY = resize(87)+resize(86)*y;
+                    }
                     Field2[x][y] = zeichneFeld2(punktX, punktY, "white"),
                     Field2[x][y].row = x
                     Field2[x][y].column = y
@@ -515,22 +533,29 @@ start = () => {
                     if (y == 0) {
                         Wall2[x] = []
                     }
-                    const punktX = resize(80) + resize(86)*x
-                    const punktY = resize(80) + resize(86)*y
+                    let punktX
+                    let punktY
+                    if (highSize()) {
+                        punktX = resize(80) + resize(86)*x
+                        punktY = resize(80) + resize(86)*y +resize(800)
+                    } else {
+                        punktX = resize(80) + resize(86)*x +resize(800)
+                        punktY = resize(80) + resize(86)*y
+                    }
                     Wall2[x][y] = {
-                        hoch: zeichneWand(punktX+resize(800), punktY, resize(5), resize(86), "#eaeaea"),
-                        quer: zeichneWand(punktX+resize(800), punktY, resize(86), resize(5), "#eaeaea"),
+                        hoch: zeichneWand(punktX, punktY, resize(5), resize(86), "#eaeaea"),
+                        quer: zeichneWand(punktX, punktY, resize(86), resize(5), "#eaeaea"),
                     }
                 }
             }
 
             computerBuildsLabyrinth(Field2);
 
-            rahmenAussen2 = new Path.Rectangle(new Point(resize(864), resize(64)), new Size(resize(727), resize(727)));
-            rahmenAussen2.strokeColor = "black";
-            rahmenAussen2.strokeWidth = resize(15);
-
-            rahmenInnen2 = new Path.Rectangle(new Point(resize(882), resize(82)), new Size(resize(692), resize(692)));
+            if (highSize()) {
+                rahmenInnen2 = new Path.Rectangle(new Point(resize(82), resize(882)), new Size(resize(692), resize(692)));
+            } else {
+                rahmenInnen2 = new Path.Rectangle(new Point(resize(882), resize(82)), new Size(resize(692), resize(692)));
+            }
             rahmenInnen2.strokeColor = "blue";
             rahmenInnen2.strokeWidth = resize(10);
 
@@ -541,7 +566,11 @@ start = () => {
         }
     }
 
-    var text = new PointText(new Point(resize(894), resize(145)));
+    if (highSize()) {
+        text = new PointText(new Point(resize(275), resize(1658)));
+    } else {
+        text = new PointText(new Point(resize(1664), resize(145)));
+    }
     text.justification = "center";
     text.fillColor = "black";
     text.content = "WEITER";
@@ -583,4 +612,12 @@ start = () => {
     rahmenInnen = new Path.Rectangle(new Point(resize(82), resize(82)), new Size(resize(692),resize(692)));
     rahmenInnen.strokeColor = "red";
     rahmenInnen.strokeWidth = resize(10);
+
+    if(highSize()) {
+        rahmenAussen2 = new Path.Rectangle(new Point(resize(64), resize(864)), new Size(resize(727), resize(727)));
+    } else {
+        rahmenAussen2 = new Path.Rectangle(new Point(resize(864), resize(64)), new Size(resize(727), resize(727)));
+    }
+    rahmenAussen2.strokeColor = "black";
+    rahmenAussen2.strokeWidth = resize(15);
 }
