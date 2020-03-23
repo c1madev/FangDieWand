@@ -98,7 +98,7 @@ const showLabyrinth = () => {
 const computerBuildsLabyrinth = () => {
     let randXField = 0
     let randYField = 0
-    while (randXField == 0 && randYField == 0) {
+    while (randXField < 3 && randYField < 3) {
     randXField = Math.floor(Math.random()*Field2.length)
     randYField = Math.floor(Math.random()*Field2.length)
     }
