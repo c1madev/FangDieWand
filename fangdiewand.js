@@ -95,33 +95,38 @@ const showLabyrinth = () => {
     rahmenInnen2.bringToFront()
 }
 
-const computerBuildsLabyrinth = () => {
+const computerBuildsLabyrinth = (gameBoard) => {
     let randXField = 0
     let randYField = 0
+    let boardWalls
+    if (gameBoard == Field) boardWalls = Wall
+    else if (gameBoard == Field2) boardWalls = Wall2
     while (randXField < 3 && randYField < 3) {
-    randXField = Math.floor(Math.random()*Field2.length)
-    randYField = Math.floor(Math.random()*Field2.length)
+    randXField = Math.floor(Math.random()*gameBoard.length)
+    randYField = Math.floor(Math.random()*gameBoard.length)
     }
-    Field2[randXField][randYField].treasure = true
-    setWalls()
+    gameBoard[randXField][randYField].treasure = true
+    setWalls(gameBoard)
 }
 
-const setWalls = () => {
+const setWalls = (gameBoard) => {
     directions = ["hoch","quer"]
+    let boardWalls
+    if (gameBoard == Field) boardWalls = Wall
+    else if (gameBoard == Field2) boardWalls = Wall2
     for(let i = 0; i < 200; i++) {
-        let randXWall = Math.floor(Math.random() * Wall2.length)
-        let randYWall = Math.floor(Math.random() * Wall2.length)
+        let randXWall = Math.floor(Math.random() * boardWalls.length)
+        let randYWall = Math.floor(Math.random() * boardWalls.length)
         let randDir = directions[Math.floor(Math.random() * directions.length)]
-        Wall2[randXWall][randYWall][randDir].zu = true
-        if(allFieldsReachable(Field2)) {
-        } else Wall2[randXWall][randYWall][randDir].zu = false
+        boardWalls[randXWall][randYWall][randDir].zu = true
+        if(allFieldsReachable(gameBoard)) {}
+        else boardWalls[randXWall][randYWall][randDir].zu = false
     }
 }
 
 const markAccessibleFields = (field) => {
     undiscoveredNeighbors = findUndiscoveredNeighbors(field.row, field.column, Field2)
     accessibleFields = isKnownWall(field, undiscoveredNeighbors)
-    console.log(undiscoveredNeighbors, accessibleFields)
     for(let i = 0; i < accessibleFields.length; i++) {
         if (accessibleFields[i].fillColor.equals("#ccffcc")) {
             accessibleFields[i].fillColor = "white"
@@ -161,6 +166,16 @@ const allFieldsReachable = (gameBoard) => {
     return true;
 }
 
+const labyrinthBuildt = () => {
+    for (let i = 0; i < Wall.length; i++) {
+        for (let y = 0; y < Wall[i].length; y++) {
+            if (Wall[i][y].hoch.zu) return true
+            if (Wall[i][y].quer.zu) return true
+        }
+    }
+    return false
+}
+
 const AusgangsfeldFinden = () => {
     let discoveredFields = [];
     for (let x = 0; x < 8; x++) {
@@ -196,6 +211,24 @@ const findUndiscoveredNeighbors = (x, y, gameBoard) => {
         }
     }
     return undiscoveredNeighbors
+}
+
+const colorLabyrinth = () => {
+    for (i = 0; i < Wall.length; i++) {
+        for (y = 0; y < Wall[i].length; y++) {
+            if (Wall[i][y].hoch.zu) {
+                Wall[i][y].hoch.strokeColor = "red"
+                Wall[i][y].hoch.strokeWidth = 5
+                Wall[i][y].hoch.bringToFront()
+            }
+            if (Wall[i][y].quer.zu) {
+                Wall[i][y].quer.strokeColor = "red"
+                Wall[i][y].quer.strokeWidth = 5
+                Wall[i][y].quer.bringToFront()
+            }
+            if (Field[i] && Field[i][y] && Field[i][y].treasure) Field[i][y].fillColor = "black"
+        }
+    }
 }
 
 const isUndiscoveredWall = (x, y, direction,boardWalls) => {
@@ -446,6 +479,12 @@ start = () => {
     weiter.onClick = function (event) {
         if (gameStage == "buildLabyrinth") {
             gameStage = "buryTreasure"
+            console.log(labyrinthBuildt())
+            if(!labyrinthBuildt()) {
+                computerBuildsLabyrinth(Field)
+                colorLabyrinth()
+                treasureBuried = true
+            }
             rahmenInnen.bringToFront()
         } else if (gameStage == "buryTreasure" && treasureBuried == true) {
             gameStage = "huntTreasure"
@@ -478,7 +517,7 @@ start = () => {
                 }
             }
 
-            computerBuildsLabyrinth();
+            computerBuildsLabyrinth(Field2);
 
             rahmenAussen2 = new Path.Rectangle(new Point(964, 64), new Size(830, 830));
             rahmenAussen2.strokeColor = "black";
