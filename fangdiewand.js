@@ -23,7 +23,7 @@ const resize = (x) => {
 }
 
 const highSize = () => {
-    if (paper.view.size.height > paper.view.size.width || paper.view.size.width < 900) return true
+    if (paper.view.size.height > paper.view.size.width || paper.view.size.height < 500) return true
 }
 
 
