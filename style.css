@@ -12,10 +12,20 @@ body {
     font-size: 1.5vh;
     cursor: pointer;
 }
-#rulesButton{
+#regelnButton{
     position:fixed;
     right: 5vw;
     top: 14vh;
+    padding: 5vw, 1vh;
+    min-width: 7vw;
+    min-height: 3vh;
+    font-size: 1.5vh;
+    cursor: pointer;
+}
+#rulesButton{
+    position:fixed;
+    right: 5vw;
+    top: 18vh;
     padding: 5vw, 1vh;
     min-width: 7vw;
     min-height: 3vh;

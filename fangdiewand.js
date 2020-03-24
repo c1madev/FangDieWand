@@ -13,6 +13,12 @@ let accessibleFields
 let startingField
 let tryDiscoverField
 
+const rules = () => {
+    window.open("rules.pdf")
+}
+const regeln = () => {
+    window.open("regeln.pdf")
+}
 const resize = (x) => {
     if (highSize()) {
         return x/1851*paper.view.size.height
@@ -37,12 +43,12 @@ const computerPlays = () => {
             Ausgangsfeld = Ausgangsfelder[AusgangsfeldRandom]
         } else {
             gameStage = "finished"
-            alert("Das Labyrinth ist unmöglich.\rDer Computer hat gewonnen.")
+            alert("The Labyrinth is impossible.\rThe Computer won.")
             return;
         }
         if(Ausgangsfeld.treasure == true) {
             Ausgangsfeld.fillColor = "orange"
-            alert("Fast hätte ich A/1 beim Programmieren übersehen.\rTja, leider doch nicht.\rUm nocheinmal zu spielen, lade die Seite neu.")
+            alert("Well, if you place the treasure on A/1,\rit's quite easy to find ...\rReload the page to play again.")
             gameStage = "finished"
             return;
         }
@@ -74,7 +80,7 @@ const computerPlays = () => {
             tryDiscoverField.discovered = true
             if (tryDiscoverField.treasure == true) {
                 tryDiscoverField.fillColor = "orange"
-                alert("Das Spiel ist vorbei.\rDer Computer hat den Schatz gefunden.\rDu hast verloren.\rUm nocheinmal zu spielen, lade die Seite neu.")
+                alert("The game is over.\rThe Computer has found the treasure.\rYou lost.\rReload the page to play again.")
                 showLabyrinth()
                 gameStage = "finished"
                 break
@@ -300,7 +306,7 @@ const zeichneFeld = (x, y, farbe) => {
                     feld.treasure = true
                     treasureBuried = true
                 } else {
-                    alert("Entferne den Schatz, bevor du ihn an anderer Stelle plazierst")
+                    alert("You have to remove the treasure before putting it elsewhere!")
                 }
             } else {
                 event.currentTarget.fillColor = "white"
@@ -402,7 +408,7 @@ const zeichneFeld2 = (x, y, farbe) => {
                         markedFields = 0
                         if (tryDiscoverField.treasure == true) {
                             gameStage = "finish"
-                            alert("Du hast den Schatz gefunden.\rLade die Seite neu, um noch einmal zu spielen.")
+                            alert("You have found the treasure.\rReload the page to play again.")
                             showLabyrinth()
                         }
                     }
@@ -458,7 +464,7 @@ const zeichneWand = (x, y, hoehe, breite, farbe) => {
                     event.currentTarget.strokeWidth = resize(5)
                     this.bringToFront()
                 } else {
-                    alert("Alle Felder müssen erreichbar sein")
+                    alert("All Fields have to be accessible!")
                     wand.zu = false;
                 }
             }
