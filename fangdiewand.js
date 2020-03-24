@@ -47,8 +47,7 @@ const computerPlays = () => {
             return;
         }
         let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column, Field);
-        nextFieldRandom = Math.floor(nextFields.length * Math.random()) //aus ihnen wird random ein Feld ausgewählt
-        console.log(nextFields, nextFieldRandom)
+        nextFieldRandom = Math.floor(nextFields.length * Math.random())
         tryDiscoverField = nextFields[nextFieldRandom]
         if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch", Wall)) {
             Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
@@ -102,7 +101,6 @@ const showLabyrinth = () => {
     for (let i = 0; i < Field2.length; i++) {
         for (let y = 0; y < Field2[i].length; y++) {
             if (Field2[i][y].treasure) {
-                console.log(Field2[i][y], i, y)
                 if (!Field2[i][y].discovered) Field2[i][y].fillColor = "green"
                 break
             }
@@ -469,111 +467,78 @@ const zeichneWand = (x, y, hoehe, breite, farbe) => {
     return wand
 }
 
+const weiter = () => {
+    if (gameStage == "buildLabyrinth") {
+        gameStage = "buryTreasure"
+        if(!labyrinthBuildt()) {
+            computerBuildsLabyrinth(Field)
+            colorLabyrinth()
+            treasureBuried = true
+        }
+        rahmenInnen.bringToFront()
+    } else if (gameStage == "buryTreasure" && treasureBuried == true) {
+        gameStage = "huntTreasure"
+        for (var x = 0; x < 8; x++) {
+            for (var y = 0; y < 8; y++) {
+                if (y == 0) {
+                    Field2[x] = [];
+                }
+                let punktX
+                let punktY
+                if (highSize()) {
+                    punktX = resize(87)+resize(86)*x;
+                    punktY = resize(887)+resize(86)*y;
+                } else {
+                    punktX = resize(887)+resize(86)*x;
+                    punktY = resize(87)+resize(86)*y;
+                }
+                Field2[x][y] = zeichneFeld2(punktX, punktY, "white"),
+                Field2[x][y].row = x
+                Field2[x][y].column = y
+            }
+        }
+    
+        for (var x = 0; x < 8; x++) {
+            for (var y = 0; y < 8; y++) {
+                if (y == 0) {
+                    Wall2[x] = []
+                }
+                let punktX
+                let punktY
+                if (highSize()) {
+                    punktX = resize(80) + resize(86)*x
+                    punktY = resize(80) + resize(86)*y +resize(800)
+                } else {
+                    punktX = resize(80) + resize(86)*x +resize(800)
+                    punktY = resize(80) + resize(86)*y
+                }
+                Wall2[x][y] = {
+                    hoch: zeichneWand(punktX, punktY, resize(5), resize(86), "#eaeaea"),
+                    quer: zeichneWand(punktX, punktY, resize(86), resize(5), "#eaeaea"),
+                }
+            }
+        }
+
+        computerBuildsLabyrinth(Field2);
+
+        if (highSize()) {
+            rahmenInnen2 = new Path.Rectangle(new Point(resize(82), resize(882)), new Size(resize(692), resize(692)));
+        } else {
+            rahmenInnen2 = new Path.Rectangle(new Point(resize(882), resize(82)), new Size(resize(692), resize(692)));
+        }
+        rahmenInnen2.strokeColor = "blue";
+        rahmenInnen2.strokeWidth = resize(10);
+
+        Field2[0][0].discovered = true
+        Field2[0][0].fillColor = "yellow"
+
+        computerPlays();
+    }
+}
+
 start = () => {
 
     document.title = "Fang die Wand!"
-
-    console.log(paper.view.size.height)
-    if (highSize()) {
-        weiter = new Path.Rectangle(new Point(resize(64), resize(1614)), new Size(resize(100), resize(50)))
-    } else {
-        weiter = new Path.Rectangle(new Point(resize(1614), resize(64)), new Size(resize(100), resize(50)))       
-    }
-    weiter.fillColor = "white"
-    weiter.strokeColor = "black";
-    weiter.strokeWidth = resize(6)
-    weiter.onMouseDown = function (event) {
-        event.currentTarget.strokeColor = "white"
-        event.currentTarget.fillColor = "black"
-    }
-    weiter.onMouseUp = function (event) {
-        event.currentTarget.strokeColor = "black"
-        event.currentTarget.fillColor = "white"
-    }
-    weiter.onMouseLeave = function (event) {
-        event.currentTarget.strokeColor = "black"
-        event.currentTarget.fillColor = "white"
-    }
-    weiter.onClick = function (event) {
-        if (gameStage == "buildLabyrinth") {
-            gameStage = "buryTreasure"
-            console.log(labyrinthBuildt())
-            if(!labyrinthBuildt()) {
-                computerBuildsLabyrinth(Field)
-                colorLabyrinth()
-                treasureBuried = true
-            }
-            rahmenInnen.bringToFront()
-        } else if (gameStage == "buryTreasure" && treasureBuried == true) {
-            gameStage = "huntTreasure"
-            weiter.remove()
-            text.remove()
-            for (var x = 0; x < 8; x++) {
-                for (var y = 0; y < 8; y++) {
-                    if (y == 0) {
-                        Field2[x] = [];
-                    }
-                    let punktX
-                    let punktY
-                    if (highSize()) {
-                        punktX = resize(87)+resize(86)*x;
-                        punktY = resize(887)+resize(86)*y;
-                    } else {
-                        punktX = resize(887)+resize(86)*x;
-                        punktY = resize(87)+resize(86)*y;
-                    }
-                    Field2[x][y] = zeichneFeld2(punktX, punktY, "white"),
-                    Field2[x][y].row = x
-                    Field2[x][y].column = y
-                }
-            }
-        
-            for (var x = 0; x < 8; x++) {
-                for (var y = 0; y < 8; y++) {
-                    if (y == 0) {
-                        Wall2[x] = []
-                    }
-                    let punktX
-                    let punktY
-                    if (highSize()) {
-                        punktX = resize(80) + resize(86)*x
-                        punktY = resize(80) + resize(86)*y +resize(800)
-                    } else {
-                        punktX = resize(80) + resize(86)*x +resize(800)
-                        punktY = resize(80) + resize(86)*y
-                    }
-                    Wall2[x][y] = {
-                        hoch: zeichneWand(punktX, punktY, resize(5), resize(86), "#eaeaea"),
-                        quer: zeichneWand(punktX, punktY, resize(86), resize(5), "#eaeaea"),
-                    }
-                }
-            }
-
-            computerBuildsLabyrinth(Field2);
-
-            if (highSize()) {
-                rahmenInnen2 = new Path.Rectangle(new Point(resize(82), resize(882)), new Size(resize(692), resize(692)));
-            } else {
-                rahmenInnen2 = new Path.Rectangle(new Point(resize(882), resize(82)), new Size(resize(692), resize(692)));
-            }
-            rahmenInnen2.strokeColor = "blue";
-            rahmenInnen2.strokeWidth = resize(10);
-
-            Field2[0][0].discovered = true
-            Field2[0][0].fillColor = "yellow"
-
-            computerPlays();
-        }
-    }
-
-    if (highSize()) {
-        text = new PointText(new Point(resize(275), resize(1658)));
-    } else {
-        text = new PointText(new Point(resize(1664), resize(145)));
-    }
-    text.justification = "center";
-    text.fillColor = "black";
-    text.content = "WEITER";
 
     rahmenAussen = new Path.Rectangle(new Point(resize(64), resize(64)), new Size(resize(727), resize(727)));
     rahmenAussen.strokeColor = "black";

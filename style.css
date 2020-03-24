@@ -2,6 +2,26 @@ body {
     margin: 0;
     font-family: sans-serif;
 }
+#nextButton{
+    position:fixed;
+    right: 5vw;
+    top: 10vh;
+    padding: 1vw, 1vh;
+    min-width: 7vw;
+    min-height: 3vh;
+    font-size: 1.5vh;
+    cursor: pointer;
+}
+#rulesButton{
+    position:fixed;
+    right: 5vw;
+    top: 14vh;
+    padding: 5vw, 1vh;
+    min-width: 7vw;
+    min-height: 3vh;
+    font-size: 1.5vh;
+    cursor: pointer;
+}
 canvas {
     width: 100%;
     height: 100vh;
