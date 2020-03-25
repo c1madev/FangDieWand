@@ -2,41 +2,19 @@ body {
     margin: 0;
     font-family: sans-serif;
 }
-#scoreboard-container{
+#scoreboard{
     position: fixed;
     right: 5vw;
     top: 24vh;
-}
-#scoreboard{
     min-width: 7vw;
     min-height: 3vh;
     font-size: 1vw
-}
-@media only screen and (max-width: 600px){
-    #scoreboard-container{
-        position: fixed;
-        bottom: 0;
-    }
-    #scoreboard{
-        left: 5vw;
-        top: none;
-        bottom: 1vh;
-        min-width: 7vw;
-        min-height: 1vh;
-        font-size: 2.5vw;
-    }
-}
-
-@media only screen and (orientation: landscape){
-    #scoreboard tr td{
-        font-size: 2.5vh;
-    }
 }
 #nextButton{
     position:fixed;
     right: 5vw;
     top: 10vh;
-    padding: 1vw, 1vh;
+    padding: 5vw, 1vh;
     min-width: 7vw;
     min-height: 3vh;
     font-size: 1.5vh;
@@ -61,6 +39,38 @@ body {
     min-height: 3vh;
     font-size: 1.5vh;
     cursor: pointer;
+}
+@media(max-width: 600px){
+    #scoreboard{
+        bottom: 5vh;
+        left: 6vw;
+        top: unset;
+        font-size: 2.5vw;
+    }
+    #tip{
+        position: fixed;
+        bottom: 9vh;
+        right: 12vw;
+        font-size: 2.2vw;
+    }
+    #nextButton{
+        top: unset;
+        bottom: 6vh;
+        right: 12vw;
+        font-size: 2.5vw;
+    }
+    #regelnButton{
+        right: 47vw;
+        bottom: 6vh;
+        top: unset;
+        font-size: 2.5vw;
+    }
+    #rulesButton{
+        right: 32vw;
+        top: unset;
+        bottom: 6vh;
+        font-size: 2.5vw;
+    }
 }
 canvas {
     width: 100%;

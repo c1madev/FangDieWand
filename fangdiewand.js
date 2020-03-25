@@ -13,6 +13,12 @@ let accessibleFields
 let startingField
 let tryDiscoverField
 let nextButton = document.querySelector("#nextButton")
+let rulesButton = document.querySelector("#rulesButton")
+let regelnButton = document.querySelector("#regelnButton")
+let games = document.querySelector("#games")
+let wins = document.querySelector("#wins")
+let losses = document.querySelector("#losses")
+let tip = document.querySelector("#tip")
 
 const rules = () => {
     window.open("rules.pdf")
@@ -20,6 +26,11 @@ const rules = () => {
 const regeln = () => {
     window.open("regeln.pdf")
 }
+
+const toString = (x) => {
+    return x.toString()
+}
+
 const resize = (x) => {
     if (highSize()) {
         return x/1851*paper.view.size.height
@@ -48,6 +59,8 @@ const computerPlays = () => {
         gameStage = "finished"
         alert("The Labyrinth is impossible.\rThe Computer won.")
         nextButton.style.visibility = "visible"
+        games.textContent = toString(1 + Number(games.textContent))
+        losses.textContent = toString(1 + Number(losses.textContent))
         return;
     }
     if(Ausgangsfeld.treasure == true) {
@@ -55,6 +68,8 @@ const computerPlays = () => {
         alert("Well, if you place the treasure on A/1,\rit's quite easy to find ...\rReload the page to play again.")
         gameStage = "finished"
         nextButton.style.visibility = "visible"
+        games.textContent = toString(1 + Number(games.textContent))
+        losses.textContent = toString(1 + Number(losses.textContent))
         return;
     }
     let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column, Field);
@@ -82,6 +97,8 @@ const computerPlays = () => {
             showLabyrinth()
             gameStage = "finished"
             nextButton.style.visibility = "visible"
+            games.textContent = toString(1 + Number(games.textContent))
+            losses.textContent = toString(1 + Number(losses.textContent))
         }
         if (gameStage != "finished") setTimeout(computerPlays, 1000)
         return;
@@ -415,6 +432,8 @@ const zeichneFeld2 = (x, y, farbe) => {
                             showLabyrinth()
                             nextButton.style.visibility = "visible"
                             gameStage = "finished"
+                            wins.textContent = toString(1 + Number(wins.textContent))
+                            games.textContent = toString(1 + Number(games.textContent))
                         }
                     }
                     markAccessibleFields(startingField)
@@ -552,6 +571,7 @@ const weiter = () => {
     if (gameStage == "finished") {
         nextButton.textContent = "next"
         gameStage = "buildLabyrinth"
+        treasureBuried = false
         for (let i = 0; i < Wall.length; i++) {
             for (let y = 0; y < Wall[i].length; y++) {
                 Wall[i][y].hoch.zu = false
@@ -581,6 +601,11 @@ const weiter = () => {
 
 
 start = () => {
+
+    if (highSize()) {
+        rulesButton.textContent = "rules"
+        regelnButton.textContent = "Regeln"
+    } else tip.textContent= ""
 
     rahmenAussen = new Path.Rectangle(new Point(resize(64), resize(64)), new Size(resize(727), resize(727)));
     rahmenAussen.strokeColor = "black";
