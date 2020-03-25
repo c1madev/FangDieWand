@@ -12,6 +12,7 @@ let markedFields = 0
 let accessibleFields
 let startingField
 let tryDiscoverField
+let nextButton = document.querySelector("#nextButton")
 
 const rules = () => {
     window.open("rules.pdf")
@@ -52,6 +53,7 @@ const computerPlays = () => {
         Ausgangsfeld.fillColor = "orange"
         alert("Well, if you place the treasure on A/1,\rit's quite easy to find ...\rReload the page to play again.")
         gameStage = "finished"
+        nextButton.style.visibility = "visible"
         return;
     }
     let nextFields = findUndiscoveredNeighbors(Ausgangsfeld.row, Ausgangsfeld.column, Field);
@@ -60,19 +62,16 @@ const computerPlays = () => {
     if (Ausgangsfeld.row > tryDiscoverField.row && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "hoch", Wall)) {
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.strokeColor = "blue"
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].hoch.discovered = true
-        turn = "playersTurn"
     } else if (Ausgangsfeld.row < tryDiscoverField.row && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "hoch", Wall)) {
         Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.discovered = true
         Wall[tryDiscoverField.row][tryDiscoverField.column].hoch.strokeColor = "blue"
-        turn = "playersTurn"
     } else if (Ausgangsfeld.column > tryDiscoverField.column && isZuWall(Ausgangsfeld.row, Ausgangsfeld.column, "quer", Wall)) {
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.discovered = true
         Wall[Ausgangsfeld.row][Ausgangsfeld.column].quer.strokeColor = "blue"
-        turn = "playersTurn"
     } else if (Ausgangsfeld.column < tryDiscoverField.column && isZuWall(tryDiscoverField.row, tryDiscoverField.column, "quer", Wall)) {
         Wall[tryDiscoverField.row][tryDiscoverField.column].quer.discovered = true
         Wall[tryDiscoverField.row][tryDiscoverField.column].quer.strokeColor = "blue"
-        turn = "playersTurn"
+        
     } else {
         tryDiscoverField.fillColor = "yellow"
         tryDiscoverField.discovered = true
@@ -81,9 +80,12 @@ const computerPlays = () => {
             alert("The game is over.\rThe Computer has found the treasure.\rYou lost.\rReload the page to play again.")
             showLabyrinth()
             gameStage = "finished"
+            nextButton.style.visibility = "visible"
         }
-        setTimeout(computerPlays, 1000)
+        if (gameStage != "finished") setTimeout(computerPlays, 1000)
+        return;
     }
+    turn = "playersTurn";
 }
 
 const showLabyrinth = () => {
@@ -328,6 +330,11 @@ const zeichneFeld2 = (x, y, farbe) => {
             else feld.fillColor = "#e6f3f7"
         }
     }
+    feld.onMouseOver = function (event) {
+        if (gameStage == "huntTreasure" && turn == "playersTurn") {
+            canvas.style.cursor = "pointer"
+        }
+    }
     feld.onMouseLeave = function (event) {
         if (gameStage == "huntTreasure") {
             canvas.style.cursor = "default"
@@ -405,6 +412,8 @@ const zeichneFeld2 = (x, y, farbe) => {
                             gameStage = "finish"
                             alert("You have found the treasure.\rReload the page to play again.")
                             showLabyrinth()
+                            nextButton.style.visibility = "visible"
+                            gameStage = "finished"
                         }
                     }
                     markAccessibleFields(startingField)
@@ -479,8 +488,8 @@ const weiter = () => {
         rahmenInnen.bringToFront()
     } else if (gameStage == "buryTreasure" && treasureBuried == true) {
         gameStage = "huntTreasure"
-        for (var x = 0; x < 8; x++) {
-            for (var y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+            for (let y = 0; y < 8; y++) {
                 if (y == 0) {
                     Field2[x] = [];
                 }
@@ -499,8 +508,8 @@ const weiter = () => {
             }
         }
     
-        for (var x = 0; x < 8; x++) {
-            for (var y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+            for (let y = 0; y < 8; y++) {
                 if (y == 0) {
                     Wall2[x] = []
                 }
@@ -533,23 +542,53 @@ const weiter = () => {
         Field2[0][0].discovered = true
         Field2[0][0].fillColor = "yellow"
 
+        nextButton.style.visibility = "hidden"
+        nextButton.textContent = "play again"
+
         feldBekannt()
         setTimeout(computerPlays, 1000);
     }
+    if (gameStage == "finished") {
+        nextButton.textContent = "next"
+        gameStage = "buildLabyrinth"
+        for (let i = 0; i < Wall.length; i++) {
+            for (let y = 0; y < Wall[i].length; y++) {
+                Wall[i][y].hoch.zu = false
+                Wall[i][y].quer.zu = false
+                Wall[i][y].hoch.strokeColor = "#eaeaea"
+                Wall[i][y].quer.strokeColor = "#eaeaea"
+                Wall[i][y].hoch.strokeWidth = resize(2)
+                Wall[i][y].quer.strokeWidth = resize(2)
+                Wall2[i][y].quer.remove()
+                Wall2[i][y].hoch.remove()
+                /*Wall2[i][y].quer.strokeColor = "#eaeaea"
+                Wall2[i][y].hoch.strokeWidth = resize(2)
+                Wall2[i][y].quer.strokeWidth = resize(2)*/
+            }
+        }
+        for (let i = 0; i < Field.length; i++) {
+            for (let y = 0; y < Field[i].length; y++) {
+                Field[i][y].fillColor = "white"
+                Field[i][y].treasure = false
+                Field2[i][y].remove()
+            }
+        }
+        Field2 = []
+        Wall2 = []
+    }
 }
 
-start = () => {
 
-    document.title = "Fang die Wand!"
+start = () => {
 
     rahmenAussen = new Path.Rectangle(new Point(resize(64), resize(64)), new Size(resize(727), resize(727)));
     rahmenAussen.strokeColor = "black";
     rahmenAussen.strokeWidth = resize(15);
 
-    var i = 0;
+    let i = 0;
 
-    for (var x = 0; x < 8; x++) {
-        for (var y = 0; y < 8; y++) {
+    for (let x = 0; x < 8; x++) {
+        for (let y = 0; y < 8; y++) {
             if (y == 0) {
                 Field[x] = [];
             }
@@ -562,8 +601,8 @@ start = () => {
     }
 
 
-    for (var x = 0; x < 8; x++) {
-        for (var y = 0; y < 8; y++) {
+    for (let x = 0; x < 8; x++) {
+        for (let y = 0; y < 8; y++) {
             if (y == 0) {
                 Wall[x] = []
             }
