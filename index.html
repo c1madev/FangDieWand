@@ -13,8 +13,23 @@
     </head>
     <body>
         <canvas id="fangdiewand" resize></canvas>
-            <button type="button" id="nextButton" onclick="weiter()">---next--></button>
-            <button type="button" id="regelnButton" onClick="regeln()">Regeln (DE)</button>
-            <button type="button" id="rulesButton" onClick="rules()">rules (EN)</button>
+        <div id=scoreboard-container>
+        <table id="scoreboard">
+            <tr>
+                <td>Scoreboard</td>
+            </tr>
+            <tr>
+                <td>Points:</td>
+                <td id="points">0</td>
+            </tr>
+            <tr>
+                <td>Games:</td>
+                <td id="games">0</td>
+            </tr>
+        </table>
+        </div>
+        <button type="button" id="nextButton" onclick="weiter()">---next--></button>
+        <button type="button" id="regelnButton" onClick="regeln()">Regeln (DE)</button>
+        <button type="button" id="rulesButton" onClick="rules()">rules (EN)</button>
     </body>
 </html>
