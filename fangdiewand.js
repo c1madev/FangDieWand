@@ -47,6 +47,7 @@ const computerPlays = () => {
     } else {
         gameStage = "finished"
         alert("The Labyrinth is impossible.\rThe Computer won.")
+        nextButton.style.visibility = "visible"
         return;
     }
     if(Ausgangsfeld.treasure == true) {
@@ -559,17 +560,17 @@ const weiter = () => {
                 Wall[i][y].quer.strokeColor = "#eaeaea"
                 Wall[i][y].hoch.strokeWidth = resize(2)
                 Wall[i][y].quer.strokeWidth = resize(2)
+                Wall[i][y].hoch.discovered = false
+                Wall[i][y].quer.discovered = false
                 Wall2[i][y].quer.remove()
                 Wall2[i][y].hoch.remove()
-                /*Wall2[i][y].quer.strokeColor = "#eaeaea"
-                Wall2[i][y].hoch.strokeWidth = resize(2)
-                Wall2[i][y].quer.strokeWidth = resize(2)*/
             }
         }
         for (let i = 0; i < Field.length; i++) {
             for (let y = 0; y < Field[i].length; y++) {
                 Field[i][y].fillColor = "white"
                 Field[i][y].treasure = false
+                Field[i][y].discovered = false
                 Field2[i][y].remove()
             }
         }
